@@ -3514,10 +3514,10 @@ public final class Settings {
 
         /**
          * Sets the lockscreen background style array helper
-         * if other then default backgroun the default wallpaper will be removed
+         * 0 = color fill, 1 = custom image, 2 = full transparent, 3 = default background
          * @hide
          */
-        public static final String LOCKSCREEN_BACKGROUND_VALUE = "lockscreen_background_value";
+        public static final String LOCKSCREEN_BACKGROUND_VALUE = "lockscreen_background_VALUE";
 
         /**
          * Sets the lockscreen background alpha
@@ -3798,6 +3798,12 @@ public final class Settings {
         * @hide
         */
         public static final String TABLET_UI = "tablet_ui";
+
+        /**
+         * Is current activity launcher or not
+         * @hide
+         */
+        public static final String IS_HOME = "is_home";
 
         /**
          * @hide
@@ -4364,17 +4370,10 @@ public final class Settings {
 
         /**
          * Sets transparency mode of status and navigation bar
-         * 0 = only home, 1 = keyguard and home (default)
+         * 0 = only home, 1 = keyguard and home (default), 2 = always
          * @hide
          */
         public static final String STATUS_NAV_BAR_ALPHA_MODE = "status_nav_bar_alpha_mode";
-
-        /**
-         * Sets color mode of status and navigation bar
-         * 0 = colorize always, 1 = colorize on keyguard and home (default)
-         * @hide
-         */
-        public static final String STATUS_NAV_BAR_COLOR_MODE = "status_nav_bar_color_mode";
 
         /**
          * Sets color of statusbar
