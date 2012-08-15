@@ -167,7 +167,7 @@ public abstract class AbstractThreadedSyncAdapter {
                         } finally {
                             syncContextClient.onFinished(new SyncResult());
                         }
-                          return;
+                        return;
                     }
                     SyncThread syncThread = new SyncThread(
                             "SyncAdapterThread-" + mNumSyncStarts.incrementAndGet(),
