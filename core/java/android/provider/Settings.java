@@ -1805,6 +1805,12 @@ public final class Settings {
         public static final int SCREEN_BRIGHTNESS_MODE_AUTOMATIC = 1;
 
         /**
+         * Whether to enable the electron beam animation when turning screen off
+         *
+         * @hide */
+        public static final String ELECTRON_BEAM_ANIMATION_OFF = "electron_beam_animation_off";
+
+        /**
          * Control whether the process CPU usage meter should be shown.
          *
          * @deprecated Use {@link Global#SHOW_PROCESSES} instead
@@ -2496,6 +2502,57 @@ public final class Settings {
         public static final String POWER_MENU_SILENT_ENABLED = "power_menu_silent_enabled";
 
         /**
+         * Whether to unlock the screen with the home key. The value is boolean (1 or 0).
+         * @hide 
+         */
+        public static final String HOME_UNLOCK_SCREEN = "home_unlock_screen";
+
+        /**
+         * Whether the lockscreen vibrate should be enabled.
+         * @hide
+         */
+        public static final String LOCKSCREEN_VIBRATE_ENABLED = "lockscreen.vibrate_enabled";
+
+        /**
+         * Whether to use a separate delay for "slide to unlock" and security
+         * lock
+         * @hide
+         */
+        public static final String SCREEN_LOCK_SLIDE_DELAY_TOGGLE = "screen_lock_slide_delay_toggle";
+
+        /**
+         * How many ms to delay before enabling the "slide to unlock" screen
+         * lock when the screen goes off due to timeout
+         * @hide
+         */
+        public static final String SCREEN_LOCK_SLIDE_TIMEOUT_DELAY = "screen_lock_slide_timeout_delay";
+
+        /**
+         * How many ms to delay before enabling the "slide to unlock" screen
+         * lock when the screen is turned off by the user
+         * @hide
+         */
+        public static final String SCREEN_LOCK_SLIDE_SCREENOFF_DELAY = "screen_lock_slide_screenoff_delay";
+
+        /**
+         * Whether to use the custom quick unlock screen control
+         * @hide
+         */
+        public static final String LOCKSCREEN_QUICK_UNLOCK_CONTROL = "lockscreen_quick_unlock_control";
+
+        /**
+         * Whether to unlock the menu key.  The value is boolean (1 or 0).
+         * @hide
+         */
+        public static final String MENU_UNLOCK_SCREEN = "menu_unlock_screen";
+
+        /**
+         * Sets the lockscreen background style
+         * @hide
+         */
+        public static final String LOCKSCREEN_BACKGROUND = "lockscreen_background";
+
+        /**
          * Display style of the status bar battery information
          * 0: Display the stock battery information
          * 1: Display cm battery percentage implementation / dont show stock icon
@@ -2618,6 +2675,7 @@ public final class Settings {
             POWER_MENU_REBOOT_ENABLED,
             POWER_MENU_AIRPLANE_ENABLED,
             POWER_MENU_SILENT_ENABLED,
+            LOCKSCREEN_VIBRATE_ENABLED,
         };
 
         // Settings moved to Settings.Secure
