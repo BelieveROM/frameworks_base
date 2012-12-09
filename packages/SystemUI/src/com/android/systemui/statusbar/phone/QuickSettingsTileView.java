@@ -25,10 +25,11 @@ import android.widget.FrameLayout;
 /**
  *
  */
-class QuickSettingsTileView extends FrameLayout {
+public class QuickSettingsTileView extends FrameLayout {
 
     private int mColSpan;
-    private int mRowSpan;
+    private final int mRowSpan;
+    private int mCellWidth;
 
     public QuickSettingsTileView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -49,7 +50,7 @@ class QuickSettingsTileView extends FrameLayout {
         return mColSpan;
     }
 
-    void setContent(int layoutId, LayoutInflater inflater) {
+    public void setContent(int layoutId, LayoutInflater inflater) {
         inflater.inflate(layoutId, this);
     }
 
@@ -67,4 +68,5 @@ class QuickSettingsTileView extends FrameLayout {
         }
         super.setVisibility(vis);
     }
+
 }
