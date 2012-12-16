@@ -1224,6 +1224,7 @@
     <!-- Device has a h/w rotation lock switch -->
     <bool name="config_hasRotationLockSwitch">false</bool>
 
+
       
     <!-- empty string to disable, or eg: /sys/kernel/fast_charge/force_fast_charge
          for a custom path the delivered kernel supports.
@@ -1237,5 +1238,9 @@
      <!-- Whether a software navigation bar should be shown. NOTE: in the future this may be
          autodetected from the Configuration. -->
     <bool name="config_showNavigationBar">false</bool>
+
+    <!-- Boolean to enable stk functionality on Samsung phones -->
+    <bool name="config_samsung_stk">false</bool>
+
 
 </resources>
