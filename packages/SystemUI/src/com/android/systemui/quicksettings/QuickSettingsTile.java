@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.view.LayoutInflater;
@@ -44,8 +45,6 @@ public class QuickSettingsTile {
     protected OnClickListener onClick;
     protected OnLongClickListener onLongClick;
     protected int mTileLayout;
-    protected BroadcastReceiver mBroadcastReceiver;
-    protected IntentFilter mIntentFilter;
     protected int mDrawable;
     protected String mLabel;
     protected PhoneStatusBar mStatusbarService;
@@ -65,7 +64,6 @@ public class QuickSettingsTile {
     public void setupQuickSettingsTile(){
         createQuickSettings();
         onPostCreate();
-        registerQuickSettingsReceiver();
         updateQuickSettings();
         mTile.setOnClickListener(onClick);
         mTile.setOnLongClickListener(onLongClick);
@@ -77,15 +75,11 @@ public class QuickSettingsTile {
         mContainerView.addView(mTile);
     }
 
-    private void registerQuickSettingsReceiver() {
-        if(mBroadcastReceiver != null && mIntentFilter != null){
-            mContext.registerReceiver(mBroadcastReceiver, mIntentFilter);
-        }
-    }
+    void onPostCreate(){}
 
-    void onPostCreate(){
+    public void onReceive(Context context, Intent intent) {}
 
-    }
+    public void onChangeUri(ContentResolver resolver, Uri uri) {}
 
     void updateQuickSettings(){
         TextView tv = (TextView) mTile.findViewById(R.id.tile_textview);

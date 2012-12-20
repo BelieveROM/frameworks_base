@@ -16,8 +16,8 @@
 
 package com.android.systemui.quicksettings;
 
+import android.content.ContentResolver;
 import android.content.Context;
-import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.Settings;
@@ -33,36 +33,32 @@ import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 
 public class AutoRotateTile extends QuickSettingsTile {
 
-    private boolean enabled = false;
-    private ContentObserver mContentObserver;
     private static final String TAG = "AutoRotateButton";
 
     public AutoRotateTile(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, QuickSettingsController qsc, Handler handler) {
         super(context, inflater, container, qsc);
 
-        mContentObserver = new AutoRotationObserver(handler);
-
-        onClick = new OnClickListener() {
-
+        mOnClick = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                RotationPolicy.setRotationLock(mContext, !enabled);
+                RotationPolicy.setRotationLock(mContext, getAutoRotation());
             }
         };
 
-        onLongClick = new OnLongClickListener() {
-
+        mOnLongClick = new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 startSettingsActivity(Settings.ACTION_DISPLAY_SETTINGS);
                 return true;
             }
         };
+        qsc.registerObservedContent(Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION)
+                , this);
     }
 
     void applyAutoRotationChanges() {
-        if(enabled){
+        if(!getAutoRotation()){
             mDrawable = R.drawable.ic_qs_rotation_locked;
             mLabel = mContext.getString(R.string.quick_settings_rotation_locked_label);
         }else{
@@ -78,31 +74,12 @@ public class AutoRotateTile extends QuickSettingsTile {
         super.onPostCreate();
     }
 
-    private class AutoRotationObserver extends ContentObserver {
-
-        public AutoRotationObserver(Handler handler) {
-            super(handler);
-            observe();
-        }
-
-        public void observe() {
-            mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION),
-                    false, this);
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            if(uri.equals(Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION))){
-                enabled = Settings.System.getInt(mContext.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0) != 1;
-                applyAutoRotationChanges();
-            }
-            super.onChange(selfChange, uri);
-        }
-
-        public void unObserve() {
-            mContext.getContentResolver().unregisterContentObserver(this);
-        }
-
+    private boolean getAutoRotation() {
+        return !RotationPolicy.isRotationLocked(mContext);
     }
 
+    @Override
+    public void onChangeUri(ContentResolver resolver, Uri uri) {
+        applyAutoRotationChanges();
+    }
 }
