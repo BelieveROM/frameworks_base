@@ -2488,6 +2488,12 @@ public final class Settings {
          */
         public static final String PREF_ENABLE = "clock_style";
 
+       /**
+        * Whether fcharge is enabled or not if kernel supports it
+        * @hide
+        */
+        public static final String FCHARGE_ENABLED = "fcharge_enabled";
+
         /**
          * Boolean value whether to link ringtone and notification volumes
          * 
