@@ -550,8 +550,12 @@ public class PhoneStatusBar extends BaseStatusBar {
         mShowCarrierInPanel = (mCarrierLabel != null);
         if (DEBUG) Slog.v(TAG, "carrierlabel=" + mCarrierLabel + " show=" + mShowCarrierInPanel);
         if (mShowCarrierInPanel) {
+<<<<<<< HEAD
             mCarrierLabel.setVisibility(mCarrierLabelVisible ? View.VISIBLE : View.INVISIBLE);
 
+=======
+            mCarrierLabel.setVisibility(mCarrierAndWifiViewVisible ? View.VISIBLE : View.INVISIBLE);
+>>>>>>> 3f8ddba... Frameworks: Some fixes, battery drain/massive redraws and minor
             // for mobile devices, we always show mobile connection info here (SPN/PLMN)
             // for other devices, we show whatever network is connected
             if (mNetworkController.hasMobileDataFeature()) {
@@ -760,7 +764,8 @@ public class PhoneStatusBar extends BaseStatusBar {
     };
 
     private int mShowSearchHoldoff = 0;
-    private Runnable mShowSearchPanel = new Runnable() {
+    private final Runnable mShowSearchPanel = new Runnable() {
+        @Override
         public void run() {
             showSearchPanel();
             awakenDreams();
@@ -1138,6 +1143,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         }
     }
 
+<<<<<<< HEAD
     protected void updateCarrierLabelVisibility(boolean force) {
         if (!mShowCarrierInPanel) return;
         // The idea here is to only show the carrier label when there is enough room to see it,
@@ -1145,11 +1151,20 @@ public class PhoneStatusBar extends BaseStatusBar {
         if (DEBUG) {
             Slog.d(TAG, String.format("pileh=%d scrollh=%d carrierh=%d",
                     mPile.getHeight(), mScrollView.getHeight(), mCarrierLabelHeight));
+=======
+    protected void updateCarrierAndWifiLabelVisibility(boolean force) {
+        if (!mShowCarrierInPanel || mCarrierAndWifiView == null) return;
+
+        if (DEBUG) {
+            Slog.d(TAG, String.format("pileh=%d scrollh=%d carrierh=%d",
+                    mPile.getHeight(), mScrollView.getHeight(), mCarrierAndWifiViewHeight));
+>>>>>>> 3f8ddba... Frameworks: Some fixes, battery drain/massive redraws and minor
         }
 
         final boolean emergencyCallsShownElsewhere = mEmergencyCallLabel != null;
         final boolean makeVisible =
             !(emergencyCallsShownElsewhere && mNetworkController.isEmergencyOnly())
+<<<<<<< HEAD
             && mPile.getHeight() < (mNotificationPanel.getHeight() - mCarrierLabelHeight - mNotificationHeaderHeight)
             && mScrollView.getVisibility() == View.VISIBLE;
         
@@ -1166,13 +1181,35 @@ public class PhoneStatusBar extends BaseStatusBar {
                 .alpha(makeVisible ? 1f : 0f)
                 //.setStartDelay(makeVisible ? 500 : 0)
                 //.setDuration(makeVisible ? 750 : 100)
+=======
+            && mPile.getHeight() < (mNotificationPanel.getHeight() - mCarrierAndWifiViewHeight - mNotificationHeaderHeight)
+            && mScrollView.getVisibility() == View.VISIBLE;
+
+        if (force || mCarrierAndWifiViewVisible != makeVisible) {
+            mCarrierAndWifiViewVisible = makeVisible;
+            if (DEBUG) {
+                Slog.d(TAG, "making carrier label " + (makeVisible?"visible":"invisible"));
+            }
+            mCarrierAndWifiView.animate().cancel();
+            if (makeVisible) {
+                mCarrierAndWifiView.setVisibility(View.VISIBLE);
+            }
+             mCarrierAndWifiView.animate()
+                .alpha(makeVisible ? 1f : 0f)
+>>>>>>> 3f8ddba... Frameworks: Some fixes, battery drain/massive redraws and minor
                 .setDuration(150)
                 .setListener(makeVisible ? null : new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
+<<<<<<< HEAD
                         if (!mCarrierLabelVisible) { // race
                             mCarrierLabel.setVisibility(View.INVISIBLE);
                             mCarrierLabel.setAlpha(0f);
+=======
+                        if (!mCarrierAndWifiViewVisible) { // race
+                            mCarrierAndWifiView.setVisibility(View.INVISIBLE);
+                            mCarrierAndWifiView.setAlpha(0f);
+>>>>>>> 3f8ddba... Frameworks: Some fixes, battery drain/massive redraws and minor
                         }
                     }
                 })
@@ -1629,8 +1666,15 @@ public class PhoneStatusBar extends BaseStatusBar {
         if (mNotificationButtonAnim != null) mNotificationButtonAnim.cancel();
         if (mClearButtonAnim != null) mClearButtonAnim.cancel();
 
+<<<<<<< HEAD
         mFlipSettingsView.setVisibility(View.VISIBLE);
         mFlipSettingsView.setScaleX(0f);
+=======
+        final boolean halfWayDone = mFlipSettingsView.getVisibility() == View.VISIBLE;
+        final int zeroOutDelays = halfWayDone ? 0 : 1;
+
+        mFlipSettingsView.setVisibility(View.VISIBLE);
+>>>>>>> 3f8ddba... Frameworks: Some fixes, battery drain/massive redraws and minor
         mFlipSettingsViewAnim = start(
             startDelay(FLIP_DURATION_OUT,
                 interpolator(mDecelerateInterpolator,
@@ -2279,7 +2323,8 @@ public class PhoneStatusBar extends BaseStatusBar {
         }
     }
 
-    private View.OnClickListener mClearButtonListener = new View.OnClickListener() {
+    private final View.OnClickListener mClearButtonListener = new View.OnClickListener() {
+        @Override
         public void onClick(View v) {
             synchronized (mNotificationData) {
                 // animate-swipe all dismissable notifications, then animate the shade closed
@@ -2369,7 +2414,8 @@ public class PhoneStatusBar extends BaseStatusBar {
         animateCollapsePanels();
     }
 
-    private View.OnClickListener mSettingsButtonListener = new View.OnClickListener() {
+    private final View.OnClickListener mSettingsButtonListener = new View.OnClickListener() {
+        @Override
         public void onClick(View v) {
             if (mHasSettingsPanel) {
                 animateExpandSettingsPanel();
@@ -2708,7 +2754,7 @@ public class PhoneStatusBar extends BaseStatusBar {
      * @author dvtonder
      *
      */
-    private class TilesChangedObserver extends ContentObserver {
+     private class TilesChangedObserver extends ContentObserver {
         public TilesChangedObserver(Handler handler) {
             super(handler);
         }
@@ -2718,6 +2764,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             if (mSettingsContainer != null) {
                 // Refresh the container
                 mQS.updateResources();
+                setNotificationWallpaperHelper();
             }
         }
 
@@ -2742,7 +2789,14 @@ public class PhoneStatusBar extends BaseStatusBar {
             cr.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.QS_DYNAMIC_WIFI),
                     false, this);
-        }
-    }
 
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NOTIF_WALLPAPER_ALPHA),
+                    false, this);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NOTIF_ALPHA),
+                    false, this);
+       }
+   }
 }
