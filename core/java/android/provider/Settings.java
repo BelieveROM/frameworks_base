@@ -2465,6 +2465,7 @@ public final class Settings {
          */
         public static final String QS_DYNAMIC_USBTETHER = "qs_dyanmic_usbtether";
 
+
         /**
          * Quick Settings Panel Dynamic Tiles
          *
@@ -2478,6 +2479,13 @@ public final class Settings {
          * @hide
          */
         public static final String QS_QUICK_PULLDOWN = "qs_quick_pulldown";
+
+        /**
+         * Quick Settings Disable Panel
+         *
+         * @hide
+         */
+        public static final String QS_DISABLE_PANEL = "qs_disable_panel";
 
         /**
          * Whether to show the clock in status bar
