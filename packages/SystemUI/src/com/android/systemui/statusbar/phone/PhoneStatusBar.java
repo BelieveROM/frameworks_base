@@ -381,7 +381,6 @@ public class PhoneStatusBar extends BaseStatusBar {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_BRIGHTNESS_CONTROL), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-<<<<<<< HEAD
                     Settings.System.SCREEN_BRIGHTNESS_MODE), false, this, mCurrentUserId);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.EXPANDED_VIEW_WIDGET), false, this);
@@ -395,11 +394,10 @@ public class PhoneStatusBar extends BaseStatusBar {
                     Settings.System.EXPANDED_DESKTOP_STATE), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NOTIFICATION_SETTINGS_BUTTON), false, this);
-=======
                     Settings.System.SCREEN_BRIGHTNESS_MODE), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.EXPANDED_VIEW_WIDGET), false, this);
->>>>>>> b5edfa3... Long press notification page switch button to toggle power widgets
+
             update();
         }
 
@@ -695,11 +693,8 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         mScrollView = (ScrollView)mStatusBarWindow.findViewById(R.id.scroll);
         mScrollView.setVerticalScrollBarEnabled(false); // less drawing during pulldowns
-<<<<<<< HEAD
         mQuickSettingsButton.setOnLongClickListener(mSettingsLongClickListener);
-=======
         mSettingsButton.setOnLongClickListener(mSettingsLongClickListener);
->>>>>>> b5edfa3... Long press notification page switch button to toggle power widgets
         if (!mNotificationPanelIsFullScreenWidth) {
             mScrollView.setSystemUiVisibility(
                     View.STATUS_BAR_DISABLE_NOTIFICATION_TICKER |
@@ -1116,14 +1111,12 @@ public class PhoneStatusBar extends BaseStatusBar {
 
      private void prepareNavigationBarView() {
         mNavigationBarView.reorient();
-<<<<<<< HEAD
-=======
 
         if (mNavigationBarView.getRecentsButton() != null) {
             mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);
             mNavigationBarView.getRecentsButton().setOnTouchListener(mRecentsPreloadOnTouchListener);
         }
->>>>>>> 12cca47... Frameworks: Navbar customization (3/3)
+
         if (mNavigationBarView.getHomeButton() != null) {
             mNavigationBarView.getHomeButton().setOnTouchListener(mHomeSearchActionListener);
         }
@@ -1761,7 +1754,9 @@ public class PhoneStatusBar extends BaseStatusBar {
                 haltTicker();
             }
         }
-       
+
+        mStatusBarView.updateBackgroundAlpha();
+
     }
 
     @Override
@@ -2635,7 +2630,9 @@ public class PhoneStatusBar extends BaseStatusBar {
 
      @Override
     public void topAppWindowChanged(boolean showMenu) {
-     //   mStatusBarView.updateBackgroundAlpha();
+   
+        mStatusBarView.updateBackgroundAlpha();
+
         if (DEBUG) {
             Slog.d(TAG, (showMenu?"showing":"hiding") + " the MENU button");
         }
