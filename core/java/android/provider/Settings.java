@@ -2629,6 +2629,13 @@ public final class Settings {
          */
         public static final String WIDGET_BUTTONS_TABLET = "expanded_widget_buttons_tablet";
 
+         /**
+         * Quick Settings Quick Pulldown if no notifications are present
+         *
+         * @hide
+         */
+        public static final String QS_NO_NOTIFICATION_PULLDOWN = "qs_no_notification_pulldown";
+
         /**
          * Navigation controls to Use
          *
