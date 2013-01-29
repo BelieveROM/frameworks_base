@@ -2466,6 +2466,13 @@ public final class Settings {
         public static final String QS_DYNAMIC_USBTETHER = "qs_dyanmic_usbtether";
 
 
+         /**
+         * Quick Settings Quick Pulldown if no notifications are present
+         *
+         * @hide
+         */
+        public static final String QS_NO_NOTIFICATION_PULLDOWN = "qs_no_notification_pulldown";
+
         /**
          * Quick Settings Panel Dynamic Tiles
          *
