@@ -1870,9 +1870,13 @@
   <java-symbol type="string" name="app_killed_message" />
 
 
-  <!-- Lockscreen --> 
-  <java-symbol type="bool" name="config_disableHomeUnlockSetting" /> 
+  <!-- Expanded desktop default set -->
+  <java-symbol type="string" name="expanded_mode_default_set" />
 
+  <!-- Lockscreen -->
+  <java-symbol type="bool" name="config_disableHomeUnlockSetting" />
+  <java-symbol type="id" name="expand_challenge_handle" />
+  
 
   <!-- Lock screen always show battery -->
   <java-symbol type="string" name="lockscreen_discharging" />
