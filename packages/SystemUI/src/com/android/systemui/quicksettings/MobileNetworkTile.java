@@ -175,4 +175,3 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
     }
 
 }
-
