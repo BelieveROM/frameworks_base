@@ -376,6 +376,7 @@ public class StatusBarManagerService extends IStatusBarService.Stub
     }
 
     @Override
+<<<<<<< HEAD
 
     public void toggleQSShade() {
         if (mBar != null) {
@@ -395,7 +396,6 @@ public class StatusBarManagerService extends IStatusBarService.Stub
     }
 
     @Override
-
     public void toggleRecentApps() {
         if (mBar != null) {
             try {

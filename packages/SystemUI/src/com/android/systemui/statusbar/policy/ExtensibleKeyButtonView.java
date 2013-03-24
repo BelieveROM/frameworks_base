@@ -42,8 +42,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import com.android.internal.statusbar.IStatusBarService;
-import com.android.systemui.statusbar.policy.KeyButtonView;
 import com.android.systemui.R;
+import com.android.systemui.statusbar.policy.KeyButtonView;
 
 
 public class ExtensibleKeyButtonView extends KeyButtonView {
@@ -59,6 +59,7 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
     final static String ACTION_SCREENSHOT = "**screenshot**";
     final static String ACTION_IME = "**ime**";
     final static String ACTION_KILL = "**kill**";
+    final static String ACTION_WIDGETS = "**widgets**";
     final static String ACTION_NULL = "**null**";
 
     private static final String TAG = "Key.Ext";
@@ -197,6 +198,18 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
 
                 mHandler.postDelayed(mKillTask,ViewConfiguration.getGlobalActionKeyTimeout());
                 return;
+<<<<<<< HEAD
+=======
+            } else if (mClickAction.equals(ACTION_WIDGETS)) {
+                try {
+                    mBarService.toggleWidgets();
+                } catch (RemoteException e) {
+                }
+                return;
+            } else if (mClickAction.equals(ACTION_POWER)) {
+                PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+                pm.goToSleep(SystemClock.uptimeMillis());
+>>>>>>> aae6265... Frameworks: Add Widgets viewpager for all devices (2/2)
             } else {  // we must have a custom uri
                  try {
                      Intent intent = Intent.parseUri(mClickAction, 0);
@@ -244,6 +257,18 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
             } else if (mLongpress.equals(ACTION_KILL)) {
                 mHandler.post(mKillTask);
                 return true;
+<<<<<<< HEAD
+=======
+            } else if (mLongpress.equals(ACTION_WIDGETS)) {
+                try {
+                    mBarService.toggleWidgets();
+                } catch (RemoteException e) {
+                }
+                return true;
+            } else if (mLongpress.equals(ACTION_LAST_APP)) {
+                toggleLastApp();
+                return true;
+>>>>>>> aae6265... Frameworks: Add Widgets viewpager for all devices (2/2)
             } else if (mLongpress.equals(ACTION_RECENTS)) {
                 try {
                     mBarService.toggleRecentApps();

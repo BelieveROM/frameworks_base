@@ -114,6 +114,25 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
     final static boolean WORKAROUND_INVALID_LAYOUT = true;
     final static int MSG_CHECK_INVALID_LAYOUT = 8686;
 
+
+    // Navbar Custom target defines.
+    final static String ACTION_HOME = "**home**";
+    final static String ACTION_BACK = "**back**";
+    final static String ACTION_SEARCH = "**search**";
+    final static String ACTION_MENU = "**menu**";
+    final static String ACTION_POWER = "**power**";
+    final static String ACTION_NOTIFICATIONS = "**notifications**";
+    final static String ACTION_RECENTS = "**recents**";
+    final static String ACTION_SCREENSHOT = "**screenshot**";
+    final static String ACTION_IME = "**ime**";
+    final static String ACTION_LAST_APP = "**lastapp**";
+    final static String ACTION_KILL = "**kill**";
+    final static String ACTION_WIDGETS = "**widgets**";
+    final static String ACTION_NULL = "**null**";
+
+    int mNumberOfButtons = 3;
+
+
     int mTablet_UI = 0;
 
     private float mAlpha;
@@ -1002,6 +1021,70 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
         makeBar();
 
     }
+
+
+    private Drawable getNavbarIconImage(boolean landscape, String uri) {
+
+        if (uri == null)
+            return getResources().getDrawable(R.drawable.ic_sysbar_null);
+
+        if (uri.startsWith("**")) {
+            if (uri.equals(ACTION_HOME)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_home);
+            } else if (uri.equals(ACTION_BACK)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_back);
+            } else if (uri.equals(ACTION_RECENTS)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_recent);
+            } else if (uri.equals(ACTION_SCREENSHOT)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_screenshot);
+            } else if (uri.equals(ACTION_SEARCH)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_search);
+            } else if (uri.equals(ACTION_MENU)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_menu_big);
+            } else if (uri.equals(ACTION_IME)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_ime_switcher);
+            } else if (uri.equals(ACTION_LAST_APP)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_lastapp);
+            } else if (uri.equals(ACTION_KILL)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_killtask);
+            } else if (uri.equals(ACTION_WIDGETS)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_widget);
+            } else if (uri.equals(ACTION_POWER)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_power);
+            } else if (uri.equals(ACTION_NOTIFICATIONS)) {
+
+                return getResources().getDrawable(R.drawable.ic_sysbar_notifications);
+            }
+        }
+
+        return getResources().getDrawable(R.drawable.ic_sysbar_null);
+    }
+        
+
+    private String getResourceName(int resId) {
+        if (resId != 0) {
+            final android.content.res.Resources res = mContext.getResources();
+            try {
+                return res.getResourceName(resId);
+            } catch (android.content.res.Resources.NotFoundException ex) {
+                return "(unknown)";
+            }
+        } else {
+            return "(null)";
+        }
+    }
+
 
     private void postCheckForInvalidLayout(final String how) {
         mHandler.obtainMessage(MSG_CHECK_INVALID_LAYOUT, 0, 0, how).sendToTarget();

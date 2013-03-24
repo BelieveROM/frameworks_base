@@ -99,6 +99,7 @@ public class CommandQueue extends IStatusBar.Stub {
         public void toggleNotificationShade();
         public void toggleQSShade();
         public void toggleRecentApps();
+        public void toggleWidgets();
         public void preloadRecentApps();
         public void showSearchPanel();
         public void hideSearchPanel();
@@ -228,6 +229,13 @@ public class CommandQueue extends IStatusBar.Stub {
         synchronized (mList) {
             mHandler.removeMessages(MSG_TOGGLE_RECENT_APPS);
             mHandler.obtainMessage(MSG_TOGGLE_RECENT_APPS, 0, 0, null).sendToTarget();
+        }
+    }
+
+    public void toggleWidgets() {
+        synchronized (mList) {
+            mHandler.removeMessages(MSG_TOGGLE_WIDGETS);
+            mHandler.obtainMessage(MSG_TOGGLE_WIDGETS, 0, 0, null).sendToTarget();
         }
     }
 

@@ -79,6 +79,7 @@ public class SlimTarget {
     public final static String ACTION_RECENTS = "**recents**";
     public final static String ACTION_IME = "**ime**";
     public final static String ACTION_KILL = "**kill**";
+    public final static String ACTION_WIDGETS = "**widgets**";
     public final static String ACTION_ASSIST = "**assist**";
     public final static String ACTION_CUSTOM = "**custom**";
     public final static String ACTION_SILENT = "**ring_silent**";
@@ -153,6 +154,15 @@ public class SlimTarget {
         }
         if (action.equals(ACTION_KILL)) {
             mHandler.post(mKillTask);
+            return true;
+        }
+
+        if (action.equals(ACTION_WIDGETS)) {
+            try {
+                IStatusBarService.Stub.asInterface(
+                        ServiceManager.getService(mContext.STATUS_BAR_SERVICE)).toggleWidgets();
+            } catch (RemoteException e) {
+            }
             return true;
         }
 
@@ -246,6 +256,7 @@ public class SlimTarget {
     }
 
 
+
 //not using yet and dont want to take time to get drawables... yes lazy dev.
   /*  public Drawable getIconImage(String uri) {
 
@@ -279,6 +290,7 @@ public class SlimTarget {
         return mContext.getResources().getDrawable(R.drawable.ic_sysbar_null);
     } */
 
+
     public String getProperSummary(String uri) {
         if (uri.equals(ACTION_HOME))
             return mContext.getResources().getString(R.string.action_home);
@@ -294,6 +306,8 @@ public class SlimTarget {
             return mContext.getResources().getString(R.string.action_ime);
         if (uri.equals(ACTION_KILL))
             return mContext.getResources().getString(R.string.action_kill);
+        if (uri.equals(ACTION_WIDGETS))
+            return mContext.getResources().getString(R.string.toggle_widgets);
         if (uri.equals(ACTION_POWER))
             return mContext.getResources().getString(R.string.action_power);
         if (uri.equals(ACTION_NOTIFICATIONS))

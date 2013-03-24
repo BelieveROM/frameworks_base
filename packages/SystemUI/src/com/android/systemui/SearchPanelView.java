@@ -385,6 +385,13 @@ public class SearchPanelView extends FrameLayout implements
             return new TargetDrawable(mResources, mResources.getDrawable(R.drawable.ic_action_ring_vib_silent));
         if (action.equals("**kill**"))
             return new TargetDrawable(mResources, mResources.getDrawable(R.drawable.ic_action_killtask));
+<<<<<<< HEAD
+=======
+        if (action.equals("**widgets**"))
+            return new TargetDrawable(mResources, mResources.getDrawable(R.drawable.ic_action_widgets));
+        if (action.equals("**lastapp**"))
+            return new TargetDrawable(mResources, mResources.getDrawable(R.drawable.ic_action_lastapp));
+>>>>>>> aae6265... Frameworks: Add Widgets viewpager for all devices (2/2)
         if (action.equals("**power**"))
             return new TargetDrawable(mResources, mResources.getDrawable(R.drawable.ic_action_power));
         if (action.equals("**screenoff**"))
