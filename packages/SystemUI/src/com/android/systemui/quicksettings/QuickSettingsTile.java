@@ -28,12 +28,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.android.systemui.R;
-import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.phone.PhoneStatusBar;
+import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 import com.android.systemui.statusbar.phone.QuickSettingsTileView;
 
@@ -42,17 +43,26 @@ public class QuickSettingsTile implements OnClickListener {
     protected final Context mContext;
     protected final ViewGroup mContainerView;
     protected final LayoutInflater mInflater;
+
     protected QuickSettingsTileView mTile;
     protected OnClickListener mOnClick;
     protected OnLongClickListener mOnLongClick;
+
     protected int mTileLayout;
     protected int mDrawable;
+    protected int mTileTextSize;
+    protected int mTileTextColor;
+    public static int mTileSize = 141;
+
     protected String mLabel;
-    protected PhoneStatusBar mStatusbarService;
-    protected QuickSettingsController mQsc;
+    protected String name = "";
     protected String tileID = "0";
 
-    public QuickSettingsTile(Context context, LayoutInflater inflater, QuickSettingsContainerView container, QuickSettingsController qsc) {
+    protected PhoneStatusBar mStatusbarService;
+    protected QuickSettingsController mQsc;
+
+    public QuickSettingsTile(Context context, LayoutInflater inflater,
+            QuickSettingsContainerView container, QuickSettingsController qsc) {
         mContext = context;
         mContainerView = container;
         mInflater = inflater;
@@ -61,9 +71,12 @@ public class QuickSettingsTile implements OnClickListener {
         mStatusbarService = qsc.mStatusBarService;
         mQsc = qsc;
         mTileLayout = R.layout.quick_settings_tile_generic;
+        mTileTextSize = ((QuickSettingsContainerView) mContainerView).updateTileTextSize();
+        mTileTextColor = ((QuickSettingsContainerView) mContainerView).updateTileTextColor();
+        mTileSize = mContext.getResources().getDimensionPixelSize(R.dimen.quick_settings_cell_height);
     }
 
-    public void setupQuickSettingsTile(){
+    public void setupQuickSettingsTile() {
             createQuickSettings();
             onPostCreate();
             updateQuickSettings();
@@ -71,25 +84,42 @@ public class QuickSettingsTile implements OnClickListener {
             mTile.setOnLongClickListener(mOnLongClick);
     }
 
-    void createQuickSettings(){
+    void createQuickSettings() {
         mTile = (QuickSettingsTileView) mInflater.inflate(R.layout.quick_settings_tile, mContainerView, false);
         mTile.setContent(mTileLayout, mInflater);
         mContainerView.addView(mTile);
+        mTile.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                    int oldLeft, int oldTop, int oldRight, int oldBottom)
+            {
+                if (left == 0 && top == 0 && right == 0 && bottom == 0)
+                    return;
+                int newSize = v.getHeight();
+                if (newSize > 0 && newSize != mTileSize) {
+                    mTileSize = newSize;
+                }
+            }
+        });
     }
 
-    void onPostCreate(){}
+    void onPostCreate() {}
 
     public void onReceive(Context context, Intent intent) {}
 
     public void onChangeUri(ContentResolver resolver, Uri uri) {}
 
-    void updateQuickSettings(){
+    void updateQuickSettings() {
         TextView tv = (TextView) mTile.findViewById(R.id.tile_textview);
         tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
         tv.setText(mLabel);
+        tv.setTextSize(1, mTileTextSize);
+        if (mTileTextColor != -2) {
+            tv.setTextColor(mTileTextColor);
+        }
     }
 
-    void startSettingsActivity(String action){
+    void startSettingsActivity(String action) {
         Intent intent = new Intent(action);
         startSettingsActivity(intent);
     }
@@ -120,5 +150,7 @@ public class QuickSettingsTile implements OnClickListener {
         }
     }
 
+    public String getTileContent() {
+        return name;
+    }
 }
-
