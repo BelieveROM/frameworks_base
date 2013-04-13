@@ -2799,7 +2799,19 @@ public final class Settings {
         public static final String STATUS_BAR_CLOCK = "status_bar_show_clock";
 
         /**
-         * comments are for noobs
+         * Whether Status bar should be hiidden when there are no
+         * notifications
+         * @hide
+         */
+        public static final String AUTO_HIDE_STATUSBAR = "auto_hide_statusbar";
+
+        /**
+         * Whether Status Bar is currently hidden or not
+         * @hide
+         */
+        public static final String HIDE_STATUSBAR = "hide_statusbar";
+
+         /**
          * @hide
          */
         public static final String STATUS_BAR_AM_PM = "status_bar_am_pm"; 
