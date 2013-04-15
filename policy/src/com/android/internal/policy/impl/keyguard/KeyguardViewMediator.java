@@ -889,7 +889,7 @@ public class KeyguardViewMediator {
      * Enable the keyguard if the settings are appropriate.
      */
     private void doKeyguardLocked(Bundle options) {
-        
+
         // if the keyguard is already showing, don't bother
         if (mKeyguardViewManager.isShowing()) {
             if (DEBUG) Log.d(TAG, "doKeyguard: not showing because it is already showing");
