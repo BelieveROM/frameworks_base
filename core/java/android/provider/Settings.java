@@ -2975,6 +2975,14 @@ public final class Settings {
          */
         public static final String LOCKSCREEN_MAXIMIZE_WIDGETS = "lockscreen_maximize_widgets";
 
+        /**
+         * Whether Status Bar is currently hidden or not for notification
+         * toggle notification shade
+         *
+         * @hide
+         */
+        public static final String TOGGLE_NOTIFICATION_SHADE = "toggle_notification_shade";
+
         
         /**
          * Show the pending notification counts as overlays on the status bar

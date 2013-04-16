@@ -47,8 +47,8 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
 import com.android.systemui.EventLogTags;
-
 import com.android.systemui.R;
+import com.android.systemui.statusbar.policy.PieController.Position;
 
 import java.util.List;
 
@@ -66,6 +66,7 @@ public class PhoneStatusBarView extends PanelBar {
     float mSettingsPanelDragzoneMin;
 
     boolean mFullWidthNotifications;
+    boolean mHighEndGfx;
     PanelView mFadingPanel = null;
     PanelView mLastFullyOpenedPanel = null;
     PanelView mNotificationPanel, mSettingsPanel;
@@ -133,7 +134,7 @@ public class PhoneStatusBarView extends PanelBar {
         Drawable bg = mContext.getResources().getDrawable(R.drawable.status_bar_background);
         if(bg instanceof ColorDrawable) {
             BackgroundAlphaColorDrawable bacd = new BackgroundAlphaColorDrawable(
-                    mStatusBarColor != -1 ? mStatusBarColor : ((ColorDrawable) bg).getColor());
+                    mStatusBarColor != -2 ? mStatusBarColor : ((ColorDrawable) bg).getColor());
             setBackground(bacd);
         }
     }
@@ -173,7 +174,7 @@ public class PhoneStatusBarView extends PanelBar {
         mBar.onBarViewDetached();
         mContext.unregisterReceiver(mBroadcastReceiver);
     }
- 
+
     @Override
     public boolean panelsEnabled() {
         return ((mBar.mDisabled & StatusBarManager.DISABLE_EXPAND) == 0);
@@ -257,6 +258,12 @@ public class PhoneStatusBarView extends PanelBar {
         mBar.makeExpandedInvisibleSoon();
         mFadingPanel = null;
         mLastFullyOpenedPanel = null;
+
+        // show up you pie controls
+        mBar.setupTriggers(false);
+
+        Settings.System.putInt(mContext.getContentResolver(),
+            Settings.System.TOGGLE_NOTIFICATION_AND_QS_SHADE, 0);
     }
 
     @Override
@@ -266,6 +273,10 @@ public class PhoneStatusBarView extends PanelBar {
         if (openPanel != mLastFullyOpenedPanel) {
             openPanel.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         }
+
+        // back off you pie controls!
+        mBar.setupTriggers(true);
+
         mFadingPanel = openPanel;
         mLastFullyOpenedPanel = openPanel;
         mShouldFade = true; // now you own the fade, mister
@@ -299,7 +310,8 @@ public class PhoneStatusBarView extends PanelBar {
             Slog.v(TAG, "panelExpansionChanged: f=" + frac);
         }
 
-        if (panel == mFadingPanel && mScrimColor != 0 && ActivityManager.isHighEndGfx()) {
+        mHighEndGfx = Settings.System.getInt(getContext().getContentResolver(),Settings.System.HIGH_END_GFX_ENABLED, 0) != 0;
+        if (panel == mFadingPanel && mScrimColor != 0 && (ActivityManager.isHighEndGfx() || mHighEndGfx)) {
             if (mShouldFade) {
                 frac = mPanelExpandedFractionSum; // don't judge me
                 // let's start this 20% of the way down the screen
@@ -333,29 +345,6 @@ public class PhoneStatusBarView extends PanelBar {
         updateShortcutsVisibility();
     }
 
-     public void updateShortcutsVisibility() {
-        // Notification Shortcuts check for fully expanded panel
-        if (mBar.mSettingsButton == null || mBar.mNotificationButton == null) {
-            // Tablet
-            if (mFullyOpenedPanel != null) {
-                mBar.updateNotificationShortcutsVisibility(true);
-            } else {
-                mBar.updateNotificationShortcutsVisibility(false);
-            }
-        } else {
-            // Phone
-            if (mFullyOpenedPanel != null && (mBar.mSettingsButton.getVisibility() == View.VISIBLE &&
-                    !(mBar.mSettingsButton.getVisibility() == View.VISIBLE &&
-                    mBar.mNotificationButton.getVisibility() == View.VISIBLE))) {
-                mBar.updateNotificationShortcutsVisibility(true);
-            } else {
-                mBar.updateNotificationShortcutsVisibility(false);
-            }
-        }
-
-        mBar.updateCarrierAndWifiLabelVisibility(false);
-    }
-
     /*
      * ]0 < alpha < 1[
      */
@@ -380,6 +369,28 @@ public class PhoneStatusBarView extends PanelBar {
             removeCallbacks(mUpdateInHomeAlpha);
             postDelayed(mUpdateInHomeAlpha, 100);
         }
+    }
+
+    public void updateShortcutsVisibility() {
+        // Notification Shortcuts check for fully expanded panel
+        if (mBar.mQuickSettingsButton == null || mBar.mNotificationButton == null) {
+            // Tablet
+            if (mFullyOpenedPanel != null) {
+                mBar.updateNotificationShortcutsVisibility(true);
+            } else {
+                mBar.updateNotificationShortcutsVisibility(false);
+            }
+        } else {
+            // Phone
+            if (mFullyOpenedPanel != null && (mBar.mQuickSettingsButton.getVisibility() == View.VISIBLE &&
+                    !(mBar.mQuickSettingsButton.getVisibility() == View.VISIBLE &&
+                    mBar.mNotificationButton.getVisibility() == View.VISIBLE))) {
+                mBar.updateNotificationShortcutsVisibility(true);
+            } else {
+                mBar.updateNotificationShortcutsVisibility(false);
+            }
+        }
+        mBar.updateCarrierAndWifiLabelVisibility(false);
     }
 
     private boolean isCurrentHomeActivity(ComponentName component, ActivityInfo homeInfo) {
@@ -422,7 +433,7 @@ public class PhoneStatusBarView extends PanelBar {
         mAlphaMode = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.STATUS_NAV_BAR_ALPHA_MODE, 1);
         mStatusBarColor = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.STATUS_BAR_COLOR, -1);
+                Settings.System.STATUS_BAR_COLOR, -2);
 
         updateBackgroundAlpha();
 
