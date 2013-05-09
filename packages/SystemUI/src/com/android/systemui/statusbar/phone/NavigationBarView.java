@@ -63,14 +63,12 @@ import com.android.systemui.statusbar.policy.KeyButtonView;
 import com.android.systemui.statusbar.policy.ExtensibleKeyButtonView;
 import com.android.systemui.statusbar.policy.DeadZone;
 
-
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class NavigationBarView extends LinearLayout implements BaseStatusBar.NavigationBarCallback {
     final static boolean DEBUG = false;

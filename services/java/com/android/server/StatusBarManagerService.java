@@ -146,7 +146,7 @@ public class StatusBarManagerService extends IStatusBarService.Stub
 
         if (mBar != null) {
             try {
-                mBar.animateExpandSettingsPanel();
+                mBar.animateExpandSettingsPanel(true);
             } catch (RemoteException ex) {
             }
         }
@@ -376,6 +376,26 @@ public class StatusBarManagerService extends IStatusBarService.Stub
     }
 
     @Override
+
+    public void toggleQSShade() {
+        if (mBar != null) {
+            try {
+                mBar.toggleQSShade();
+            } catch (RemoteException ex) {}
+        }
+    }
+
+    @Override
+    public void toggleWidgets() {
+        if (mBar != null) {
+            try {
+                mBar.toggleWidgets();
+            } catch (RemoteException ex) {}
+        }
+    }
+
+    @Override
+
     public void toggleRecentApps() {
         if (mBar != null) {
             try {

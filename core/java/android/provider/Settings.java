@@ -3126,6 +3126,16 @@ public final class Settings {
          */
         public static final String HIDE_STATUSBAR = "hide_statusbar";
 
+
+        /**
+         * Whether Status Bar is currently hidden or not for notification
+         * toggle notification shade
+         *
+         * @hide
+         */
+        public static final String TOGGLE_NOTIFICATION_AND_QS_SHADE = "toggle_notification_and_qs_shade";
+
+
          /**
          * @hide
          */
