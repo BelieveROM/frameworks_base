@@ -157,8 +157,56 @@ public class KeyguardViewManager {
                         return true;
                     }
                 }
+
                 // Always process media keys, regardless of focus
                 if (mKeyguardView.dispatchKeyEvent(event)) {
+
+            }
+            return super.dispatchKeyEvent(event);
+        }
+    }
+
+    public boolean handleKeyDown(int keyCode, KeyEvent event) {
+        if (event.getRepeatCount() == 0) {
+            mUnlockKeyDown = true;
+        }
+        if (event.isLongPress()) {
+            String action = null;
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_BACK:
+                    action = Settings.System.LOCKSCREEN_LONG_BACK_ACTION;
+                    break;
+                case KeyEvent.KEYCODE_HOME:
+                    action = Settings.System.LOCKSCREEN_LONG_HOME_ACTION;
+                    break;
+                case KeyEvent.KEYCODE_MENU:
+                    action = Settings.System.LOCKSCREEN_LONG_MENU_ACTION;
+                    break;
+                case KeyEvent.KEYCODE_ASSIST:
+                    action = Settings.System.LOCKSCREEN_LONG_ASSIST_ACTION;
+                    break;
+                case KeyEvent.KEYCODE_APP_SWITCH:
+                    action = Settings.System.LOCKSCREEN_LONG_APP_SWITCH_ACTION;
+                    break;
+                case KeyEvent.KEYCODE_CAMERA:
+                    action = Settings.System.LOCKSCREEN_LONG_CAMERA_ACTION;
+                    break;
+            }
+
+            if (action != null) {
+                mUnlockKeyDown = false;
+                String uri = Settings.System.getString(mContext.getContentResolver(), action);
+                if (uri != null && runAction(mContext, uri)) {
+                    long[] pattern = getLongPressVibePattern(mContext);
+                    if (pattern != null) {
+                        Vibrator v = (Vibrator) mContext.getSystemService(mContext.VIBRATOR_SERVICE);
+                        if (pattern.length == 1) {
+                            v.vibrate(pattern[0]);
+                        } else {
+                            v.vibrate(pattern, -1);
+                        }
+                    }
+
                     return true;
                 }
             }
