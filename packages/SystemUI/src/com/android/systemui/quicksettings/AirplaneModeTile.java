@@ -29,25 +29,27 @@ import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.NetworkController.NetworkSignalChangedCallback;
+import android.content.BroadcastReceiver;
 
 public class AirplaneModeTile extends QuickSettingsTile implements NetworkSignalChangedCallback{
-
+    private NetworkController mController;
     private boolean enabled = false;
     public static QuickSettingsTile mInstance;
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new AirplaneModeTile(context, inflater, container, qsc);
+            QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id, BroadcastReceiver controller) {
+        mInstance = null;
+        mInstance = new AirplaneModeTile(context, inflater, container, qsc, (NetworkController) controller);
         return mInstance;
     }
 
     public AirplaneModeTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
+            QuickSettingsContainerView container, QuickSettingsController qsc, NetworkController controller) {
         super(context, inflater, container, qsc);
-
+        mController = controller;
         mLabel = mContext.getString(R.string.quick_settings_airplane_mode_label);
 
-        onClick = new View.OnClickListener() {
+        mOnClick = new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -61,7 +63,7 @@ public class AirplaneModeTile extends QuickSettingsTile implements NetworkSignal
                 mContext.sendBroadcast(intent);
             }
         };
-        onLongClick = new OnLongClickListener() {
+        mOnLongClick = new OnLongClickListener() {
 
             @Override
             public boolean onLongClick(View v) {
@@ -73,9 +75,14 @@ public class AirplaneModeTile extends QuickSettingsTile implements NetworkSignal
 
     @Override
     void onPostCreate() {
-        NetworkController controller = new NetworkController(mContext);
-        controller.addNetworkSignalChangedCallback(this);
+        mController.addNetworkSignalChangedCallback(this);
         super.onPostCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        mController.removeNetworkSignalChangedCallback(this);
+        super.onDestroy();
     }
 
     @Override

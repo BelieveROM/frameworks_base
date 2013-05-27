@@ -28,21 +28,25 @@ import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.NetworkController.NetworkSignalChangedCallback;
+import android.content.BroadcastReceiver;
 
 public class WiFiTile extends QuickSettingsTile implements NetworkSignalChangedCallback{
-
+    private NetworkController mController;
     public static QuickSettingsTile mInstance;
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new WiFiTile(context, inflater, container, qsc);
+            QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id, BroadcastReceiver controller) {
+        mInstance = null;
+        mInstance = new WiFiTile(context, inflater, container, qsc, (NetworkController) controller);
         return mInstance;
     }
 
     public WiFiTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
+            QuickSettingsContainerView container, QuickSettingsController qsc, NetworkController controller) {
         super(context, inflater, container, qsc);
-        onClick = new View.OnClickListener() {
+        mController = controller;
+
+        mOnClick = new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -50,7 +54,7 @@ public class WiFiTile extends QuickSettingsTile implements NetworkSignalChangedC
                 wfm.setWifiEnabled(!wfm.isWifiEnabled());
             }
         };
-        onLongClick = new OnLongClickListener() {
+        mOnLongClick = new OnLongClickListener() {
 
             @Override
             public boolean onLongClick(View v) {
@@ -62,9 +66,14 @@ public class WiFiTile extends QuickSettingsTile implements NetworkSignalChangedC
 
     @Override
     void onPostCreate() {
-        NetworkController controller = new NetworkController(mContext);
-        controller.addNetworkSignalChangedCallback(this);
+        mController.addNetworkSignalChangedCallback(this);
         super.onPostCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        mController.removeNetworkSignalChangedCallback(this);
+        super.onDestroy();
     }
 
     @Override
