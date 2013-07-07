@@ -1192,6 +1192,53 @@ public class PhoneStatusBar extends BaseStatusBar {
         return mNotificationData.hasClearableItems();
     }
 
+
+    boolean hasVisibleNotifications() {
+        return mNotificationData.hasVisibleItems();
+    }
+
+    protected void updateNotificationShortcutsVisibility(boolean vis, boolean instant) {
+        if ((!mNotificationShortcutsToggle && mNotificationShortcutsVisible == vis) ||
+                mStatusBarWindow.findViewById(R.id.custom_notification_scrollview) == null) {
+            return;
+        }
+        if (DEBUG) {
+            Slog.d(TAG, "NSCUT: mNotificationShortcutsVisible=" + mNotificationShortcutsVisible + " vis=" + vis + " instant=" + instant);
+        }
+
+        if (instant) {
+            mNotificationShortcutsScrollView.setVisibility(vis ? View.VISIBLE : View.INVISIBLE);
+            mNotificationShortcutsScrollView.setAlpha(vis ? 1f : 0f);
+            mNotificationShortcutsVisible = vis;
+            return;
+        }
+
+        if (mNotificationShortcutsVisible != vis) {
+            mNotificationShortcutsVisible = vis;
+            if (vis) {
+                mNotificationShortcutsScrollView.setVisibility(View.VISIBLE);
+            }
+            mNotificationShortcutsScrollView.animate()
+                .alpha(vis ? 1f : 0f)
+                .setDuration(150)
+                .setListener(vis ? null : new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if (!mNotificationShortcutsVisible) { // race
+                            mNotificationShortcutsScrollView.setVisibility(View.INVISIBLE);
+                            mNotificationShortcutsScrollView.setAlpha(0f);
+                        }
+                    }
+                })
+                .start();
+        }
+    }
+
+    protected void updateNotificationShortcutsVisibility(boolean vis) {
+        updateNotificationShortcutsVisibility(vis, false);
+    }
+
+
     @Override
     protected void setAreThereNotifications() {
         final boolean any = mNotificationData.size() > 0;
