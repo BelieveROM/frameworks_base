@@ -106,6 +106,10 @@ public abstract class BaseStatusBar extends SystemUI implements
     public static final int EXPANDED_LEAVE_ALONE = -10000;
     public static final int EXPANDED_FULL_OPEN = -10001;
 
+    private static final boolean CLOSE_PANEL_WHEN_EMPTIED = true;
+    private static final int COLLAPSE_AFTER_DISMISS_DELAY = 200;
+    private static final int COLLAPSE_AFTER_REMOVE_DELAY = 400;
+
     protected CommandQueue mCommandQueue;
     protected IStatusBarService mBarService;
     protected H mHandler = createHandler();
@@ -126,6 +130,127 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     protected int mCurrentUserId = 0;
 
+<<<<<<< HEAD
+=======
+    protected FrameLayout mStatusBarContainer;
+
+    private Runnable mPanelCollapseRunnable = new Runnable() {
+        @Override
+        public void run() {
+            animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
+        }
+    };
+
+    /**
+     * An interface for navigation key bars to allow status bars to signal which keys are
+     * currently of interest to the user.<br>
+     * See {@link NavigationBarView} in Phone UI for an example.
+     */
+    public interface NavigationBarCallback {
+        /**
+         * @param hints flags from StatusBarManager (NAVIGATION_HINT...) to indicate which key is
+         * available for navigation
+         * @see StatusBarManager
+         */
+        public abstract void setNavigationIconHints(int hints);
+        /**
+         * @param showMenu {@code true} when an menu key should be displayed by the navigation bar.
+         */
+        public abstract void setMenuVisibility(boolean showMenu);
+        /**
+         * @param disabledFlags flags from View (STATUS_BAR_DISABLE_...) to indicate which key
+         * is currently disabled on the navigation bar.
+         * {@see View}
+         */
+        public void setDisabledFlags(int disabledFlags);
+    };
+    private ArrayList<NavigationBarCallback> mNavigationCallbacks =
+            new ArrayList<NavigationBarCallback>();
+
+    // Pie Control
+    protected PieController mPieController;
+    protected PieLayout mPieContainer;
+    private int mPieTriggerSlots;
+    public int mPieTriggerMask = Position.LEFT.FLAG
+            | Position.BOTTOM.FLAG
+            | Position.RIGHT.FLAG
+            | Position.TOP.FLAG;
+    private boolean mForceDisableBottomAndTopTrigger = false;
+    private View[] mPieTrigger = new View[Position.values().length];
+    private PieSettingsObserver mSettingsObserver;
+
+    private View.OnTouchListener mPieTriggerOnTouchHandler = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            final int action = event.getAction();
+            final PieController.Tracker tracker = (PieController.Tracker)v.getTag();
+
+            if (tracker == null) {
+                if (DEBUG_INPUT) {
+                    Slog.v(TAG, "Pie trigger onTouch: action: " + action + ", ("
+                            + event.getAxisValue(MotionEvent.AXIS_X) + ","
+                            + event.getAxisValue(MotionEvent.AXIS_Y) + ") position: NULL returning: false");
+                }
+                return false;
+            }
+
+            if (!mPieController.isShowing()) {
+                if (event.getPointerCount() > 1) {
+                    if (DEBUG_INPUT) {
+                        Slog.v(TAG, "Pie trigger onTouch: action: " + action
+                                + ", (to many pointers) position: " + tracker.position.name()
+                                + " returning: false");
+                    }
+                    return false;
+                }
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        tracker.start(event);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (tracker.move(event)) {
+                            if (DEBUG) {
+                                Slog.v(TAG, "Pie control activated on: ("
+                                        + event.getAxisValue(MotionEvent.AXIS_X) + ","
+                                        + event.getAxisValue(MotionEvent.AXIS_Y) + ") with position: "
+                                        + tracker.position.name());
+                            }
+                            // set the snap points depending on current trigger and mask
+                            mPieContainer.setSnapPoints(mPieTriggerMask & ~mPieTriggerSlots);
+                            // send the activation to the controller
+                            mPieController.activateFromTrigger(v, event, tracker.position);
+                            // forward a spoofed ACTION_DOWN event
+                            MotionEvent echo = event.copy();
+                            echo.setAction(MotionEvent.ACTION_DOWN);
+                            return mPieContainer.onTouch(v, echo);
+                        }
+                        break;
+                    default:
+                        // whatever it was, we are giving up on this one
+                        tracker.active = false;
+                        break;
+                }
+            } else {
+                if (DEBUG_INPUT) {
+                    Slog.v(TAG, "Pie trigger onTouch: action: " + action + ", ("
+                            + event.getAxisValue(MotionEvent.AXIS_X) + ","
+                            + event.getAxisValue(MotionEvent.AXIS_Y)
+                            + ") position: " + tracker.position.name() + " delegating");
+                }
+                return mPieContainer.onTouch(v, event);
+            }
+            if (DEBUG_INPUT) {
+                Slog.v(TAG, "Pie trigger onTouch: action: " + action + ", ("
+                        + event.getAxisValue(MotionEvent.AXIS_X) + ","
+                        + event.getAxisValue(MotionEvent.AXIS_Y) + ") position: "
+                        + tracker.position.name() + " returning: " + tracker.active);
+            }
+            return tracker.active;
+        }
+
+    };
+>>>>>>> f2cf738... Improve notification shade collapse code.
 
     protected int mLayoutDirection;
     private Locale mLocale;
@@ -930,6 +1055,16 @@ public abstract class BaseStatusBar extends SystemUI implements
         updateExpansionStates();
         updateNotificationIcons();
 
+        if (CLOSE_PANEL_WHEN_EMPTIED && isNotificationPanelFullyVisible()) {
+            if (entry.userDismissed() && !mNotificationData.hasClearableItems()) {
+                mHandler.removeCallbacks(mPanelCollapseRunnable);
+                mHandler.postDelayed(mPanelCollapseRunnable, COLLAPSE_AFTER_DISMISS_DELAY);
+            } else if (mNotificationData.size() == 0) {
+                mHandler.removeCallbacks(mPanelCollapseRunnable);
+                mHandler.postDelayed(mPanelCollapseRunnable, COLLAPSE_AFTER_REMOVE_DELAY);
+            }
+        }
+
         return entry.notification;
     }
 
@@ -969,6 +1104,7 @@ public abstract class BaseStatusBar extends SystemUI implements
         }
         updateExpansionStates();
         updateNotificationIcons();
+        mHandler.removeCallbacks(mPanelCollapseRunnable);
 
         return iconView;
     }
@@ -1016,6 +1152,7 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected abstract void tick(IBinder key, StatusBarNotification n, boolean firstTime);
     protected abstract void updateExpandedViewPos(int expandedPosition);
     protected abstract int getExpandedViewMaxHeight();
+    protected abstract boolean isNotificationPanelFullyVisible();
     protected abstract boolean shouldDisableNavbarGestures();
 
     protected boolean isTopNotification(ViewGroup parent, NotificationData.Entry entry) {
