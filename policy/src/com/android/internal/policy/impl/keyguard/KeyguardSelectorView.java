@@ -206,6 +206,52 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         mFadeView = carrierArea;
     }
 
+<<<<<<< HEAD
+=======
+    public boolean isScreenLarge() {
+        final int screenSize = Resources.getSystem().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK;
+        boolean isScreenLarge = screenSize == Configuration.SCREENLAYOUT_SIZE_LARGE ||
+                screenSize == Configuration.SCREENLAYOUT_SIZE_XLARGE;
+        return isScreenLarge;
+    }
+
+    private boolean isShortcuts() {
+        final String apps = Settings.System.getStringForUser(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_SHORTCUTS_CONFIG, UserHandle.USER_CURRENT);
+        if (apps == null || apps.isEmpty()) return false;
+        return true;
+    }
+
+    private boolean isEightTargets() {
+        final int storedVal = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_EIGHT_TARGETS, 0, UserHandle.USER_CURRENT);
+        if (storedVal == 0) return false;
+        return true;
+    }
+
+    private StateListDrawable getLayeredDrawable(Drawable back, Drawable front, int inset, boolean frontBlank) {
+        Resources res = getResources();
+        InsetDrawable[] inactivelayer = new InsetDrawable[2];
+        InsetDrawable[] activelayer = new InsetDrawable[2];
+        inactivelayer[0] = new InsetDrawable(res.getDrawable(com.android.internal.R.drawable.ic_lockscreen_lock_pressed), 0, 0, 0, 0);
+        inactivelayer[1] = new InsetDrawable(front, inset, inset, inset, inset);
+        activelayer[0] = new InsetDrawable(back, 0, 0, 0, 0);
+        activelayer[1] = new InsetDrawable(frontBlank ? res.getDrawable(android.R.color.transparent) : front, inset, inset, inset, inset);
+        StateListDrawable states = new StateListDrawable();
+        LayerDrawable inactiveLayerDrawable = new LayerDrawable(inactivelayer);
+        inactiveLayerDrawable.setId(0, 0);
+        inactiveLayerDrawable.setId(1, 1);
+        LayerDrawable activeLayerDrawable = new LayerDrawable(activelayer);
+        activeLayerDrawable.setId(0, 0);
+        activeLayerDrawable.setId(1, 1);
+        states.addState(TargetDrawable.STATE_INACTIVE, inactiveLayerDrawable);
+        states.addState(TargetDrawable.STATE_ACTIVE, activeLayerDrawable);
+        states.addState(TargetDrawable.STATE_FOCUSED, activeLayerDrawable);
+        return states;
+    }
+
+>>>>>>> fa119ce... Frameworks: refactor, cleanup, centralize, fixes, features
     public boolean isTargetPresent(int resId) {
         return mGlowPadView.getTargetPosition(resId) != -1;
     }

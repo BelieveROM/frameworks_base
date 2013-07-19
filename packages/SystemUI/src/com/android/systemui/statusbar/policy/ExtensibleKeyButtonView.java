@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar.policy;
 
+<<<<<<< HEAD
 import java.net.URISyntaxException;
 
 import android.app.Activity;
@@ -32,22 +33,30 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+=======
+import android.content.Context;
+import android.hardware.input.InputManager;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Process;
+>>>>>>> fa119ce... Frameworks: refactor, cleanup, centralize, fixes, features
 import android.os.SystemClock;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-import com.android.internal.statusbar.IStatusBarService;
+import com.android.internal.util.slim.ButtonsConstants;
+import com.android.internal.util.slim.SlimActions;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.policy.KeyButtonView;
 
 
 public class ExtensibleKeyButtonView extends KeyButtonView {
 
+<<<<<<< HEAD
     final static String ACTION_HOME = "**home**";
     final static String ACTION_BACK = "**back**";
     final static String ACTION_SEARCH = "**search**";
@@ -62,42 +71,39 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
     final static String ACTION_WIDGETS = "**widgets**";
     final static String ACTION_NULL = "**null**";
 
+=======
+>>>>>>> fa119ce... Frameworks: refactor, cleanup, centralize, fixes, features
     private static final String TAG = "Key.Ext";
 
-    IStatusBarService mBarService;
+    private Context mContext;
+    private Handler mHandler;
 
-    public String mClickAction, mLongpress;
-
-    public Handler mHandler;
-
-    public ActivityManager mActivityManager;
-
-    public int mInjectKeycode;
-
-    final Object mScreenshotLock = new Object();
-    ServiceConnection mScreenshotConnection = null;
+    private int mInjectKeycode;
+    private String mClickAction, mLongpressAction;
 
     public ExtensibleKeyButtonView(Context context, AttributeSet attrs) {
-        this(context, attrs, ACTION_NULL,ACTION_NULL);
+        this(context, attrs, ButtonsConstants.ACTION_NULL, ButtonsConstants.ACTION_NULL);
     }
 
-    public ExtensibleKeyButtonView(Context context, AttributeSet attrs, String ClickAction, String Longpress) {
+    public ExtensibleKeyButtonView(Context context, AttributeSet attrs, String clickAction, String longpressAction) {
         super(context, attrs);
 
+        mContext = context;
         mHandler = new Handler();
-        mActivityManager = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
-        mBarService = IStatusBarService.Stub.asInterface(
-                ServiceManager.getService(Context.STATUS_BAR_SERVICE));
-        mClickAction = ClickAction;
-        mLongpress = Longpress;
+        mClickAction = clickAction;
+        mLongpressAction = longpressAction;
+
         setCode(0);
-        if (ClickAction != null){
-            if (ClickAction.equals(ACTION_HOME)) {
+        setSupportsLongPress(false);
+
+        if (clickAction != null){
+            if (clickAction.equals(ButtonsConstants.ACTION_HOME)) {
                 setCode(KeyEvent.KEYCODE_HOME);
                 setId(R.id.home);
-            } else if (ClickAction.equals(ACTION_BACK)) {
-                setCode (KeyEvent.KEYCODE_BACK);
+            } else if (clickAction.equals(ButtonsConstants.ACTION_BACK)) {
+                setCode(KeyEvent.KEYCODE_BACK);
                 setId(R.id.back);
+<<<<<<< HEAD
             } else if (ClickAction.equals(ACTION_SEARCH)) {
                 setCode (KeyEvent.KEYCODE_SEARCH);
             } else if (ClickAction.equals(ACTION_MENU)) {
@@ -105,14 +111,23 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
             } else if (ClickAction.equals(ACTION_POWER)) {
                 setCode (KeyEvent.KEYCODE_POWER);
             } else { // the remaining options need to be handled by OnClick;
+=======
+            } else if (clickAction.equals(ButtonsConstants.ACTION_SEARCH)) {
+                setCode(KeyEvent.KEYCODE_SEARCH);
+            } else if (clickAction.equals(ButtonsConstants.ACTION_MENU)) {
+                setCode(KeyEvent.KEYCODE_MENU);
+            } else {
+                // the remaining options need to be handled by OnClick
+>>>>>>> fa119ce... Frameworks: refactor, cleanup, centralize, fixes, features
                 setOnClickListener(mClickListener);
-                if (ClickAction.equals(ACTION_RECENTS))
+                if (clickAction.equals(ButtonsConstants.ACTION_RECENTS)) {
                     setId(R.id.recent_apps);
+                }
             }
         }
-        setSupportsLongPress (false);
-        if (Longpress != null)
-            if ((!Longpress.equals(ACTION_NULL)) || (getCode() !=0)) {
+
+        if (longpressAction != null)
+            if ((!longpressAction.equals(ButtonsConstants.ACTION_NULL)) || (getCode() !=0)) {
                 // I want to allow long presses for defined actions, or if
                 // primary action is a 'key' and long press isn't defined otherwise
                 setSupportsLongPress(true);
@@ -150,6 +165,7 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
         }
     };
 
+<<<<<<< HEAD
     Runnable mKillTask = new Runnable() {
         public void run() {
             String packageName = mActivityManager.getRunningTasks(1).get(0).topActivity.getPackageName();
@@ -157,11 +173,14 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
         }
     };
 
+=======
+>>>>>>> fa119ce... Frameworks: refactor, cleanup, centralize, fixes, features
     private OnClickListener mClickListener = new OnClickListener() {
 
         @Override
         public void onClick(View v) {
             // the other consts were handled by keycode.
+<<<<<<< HEAD
 
             if (mClickAction.equals(ACTION_NULL)) {
                 // who would set a button with no ClickAction?
@@ -221,6 +240,9 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
                       Log.e(TAG, "ActivityNotFound: [" + mClickAction + "]");
                  }
             }
+=======
+            SlimActions.processAction(mContext, mClickAction);
+>>>>>>> fa119ce... Frameworks: refactor, cleanup, centralize, fixes, features
             return;
         }
     };
@@ -229,25 +251,19 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
 
         @Override
         public boolean onLongClick(View v) {
-            if (mLongpress == null) {
-                return true;
-            }
-            if (mLongpress.equals(ACTION_NULL)) {
-                // attempt to keep long press functionality of 'keys' if
-                // they haven't been overridden.
-                return true;
-            } else if (mLongpress.equals(ACTION_HOME)) {
+            if (mLongpressAction.equals(ButtonsConstants.ACTION_HOME)) {
                 injectKeyDelayed(KeyEvent.KEYCODE_HOME);
                 return true;
-            } else if (mLongpress.equals(ACTION_BACK)) {
+            } else if (mLongpressAction.equals(ButtonsConstants.ACTION_BACK)) {
                 injectKeyDelayed(KeyEvent.KEYCODE_BACK);
                 return true;
-            } else if (mLongpress.equals(ACTION_SEARCH)) {
+            } else if (mLongpressAction.equals(ButtonsConstants.ACTION_SEARCH)) {
                 injectKeyDelayed(KeyEvent.KEYCODE_SEARCH);
                 return true;
-            } else if (mLongpress.equals(ACTION_MENU)) {
+            } else if (mLongpressAction.equals(ButtonsConstants.ACTION_MENU)) {
                 injectKeyDelayed(KeyEvent.KEYCODE_MENU);
                 return true;
+<<<<<<< HEAD
             } else if (mLongpress.equals(ACTION_POWER)) {
                 injectKeyDelayed(KeyEvent.KEYCODE_POWER);
                 return true;
@@ -390,6 +406,11 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
         public void handleMessage(Message msg) {
             switch (msg.what) {
 
+=======
+            } else {
+                SlimActions.processAction(mContext, mLongpressAction);
+                return true;
+>>>>>>> fa119ce... Frameworks: refactor, cleanup, centralize, fixes, features
             }
         }
     };
