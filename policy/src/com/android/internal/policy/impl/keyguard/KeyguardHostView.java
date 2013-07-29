@@ -400,6 +400,7 @@ public class KeyguardHostView extends KeyguardViewBase {
                 getSystemUiVisibility() | View.STATUS_BAR_DISABLE_BACK);
     }
 
+
     private boolean shouldEnableAddWidget() {
         return numWidgets() < MAX_WIDGETS && mUserSetupCompleted;
     }
