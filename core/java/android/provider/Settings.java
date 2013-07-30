@@ -1762,6 +1762,22 @@ public final class Settings {
         public static final String ALWAYS_FINISH_ACTIVITIES = Global.ALWAYS_FINISH_ACTIVITIES;
 
         /**
+         * Volume Overlay Mode, This is behaviour of the volume overlay panel
+         * Defaults to 0 - which is simple
+         * @hide
+         */
+        public static final String MODE_VOLUME_OVERLAY = "mode_volume_overlay";
+
+        /** @hide */
+        public static final int VOLUME_OVERLAY_SINGLE = 0;
+        /** @hide */
+        public static final int VOLUME_OVERLAY_EXPANDABLE = 1;
+        /** @hide */
+        public static final int VOLUME_OVERLAY_EXPANDED = 2;
+        /** @hide */
+        public static final int VOLUME_OVERLAY_NONE = 3;
+
+        /**
          * Determines which streams are affected by ringer mode changes. The
          * stream type's bit should be set to 1 if it should be muted when going
          * into an inaudible ringer mode.
@@ -1836,6 +1852,12 @@ public final class Settings {
          * not change the volume. See AudioManager.
          */
         public static final String VOLUME_BLUETOOTH_SCO = "volume_bluetooth_sco";
+
+         /**
+         * Whether to prevent loud volume levels when headset is first plugged in.
+         * @hide
+         */
+        public static final String SAFE_HEADSET_VOLUME_RESTORE = "safe_headset_volume_restore";
 
         /**
          * Master volume (float in the range 0.0f to 1.0f).
@@ -2062,6 +2084,19 @@ public final class Settings {
          * disabled by the application.
          */
         public static final String ACCELEROMETER_ROTATION = "accelerometer_rotation";
+
+        /**
+         * Control the type of rotation which can be performed using the accelerometer
+         * if ACCELEROMETER_ROTATION is enabled.
+         * Value is a bitwise combination of
+         * 1 = 0 degrees (portrait)
+         * 2 = 90 degrees (left)
+         * 4 = 180 degrees (inverted portrait)
+         * 8 = 270 degrees (right)
+         * Setting to 0 is effectively orientation lock
+         * @hide
+         */
+        public static final String ACCELEROMETER_ROTATION_ANGLES = "accelerometer_rotation_angles";
 
         /**
          * Default screen rotation when no other policy applies.
@@ -2316,6 +2351,119 @@ public final class Settings {
         public static final String POINTER_SPEED = "pointer_speed";
 
         /**
+         * Whether to show the clock in status bar
+         * of the stock battery icon
+         * 0: don't show the clock
+         * 1: right side clock
+         * 2: center clock
+         * default: 1
+            @hide
+         */
+        public static final String STATUS_BAR_CLOCK = "status_bar_show_clock";
+
+        /**
+         * comments are for noobs
+         * @hide
+         */
+        public static final String STATUS_BAR_AM_PM = "status_bar_am_pm"; 
+
+        /**
+         * comments are for noobs
+         * @hide
+         */
+        public static final String PREF_ENABLE = "clock_style";
+
+        /**
+         * Boolean value whether to link ringtone and notification volumes
+         * 
+         * @hide
+         */
+        public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
+
+        /**
+         * Whether to wake the screen with the volume keys, the value is boolean.
+         * @hide
+         */
+        public static final String VOLUME_WAKE_SCREEN = "volume_wake_screen";
+
+        /**
+         * Whether or not volume button music controls should be enabled to seek media tracks
+         * @hide
+         */
+        public static final String VOLBTN_MUSIC_CONTROLS = "volbtn_music_controls";
+
+        /**
+         * Expanded Desktop feature.
+         * @hide
+         */
+        public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
+
+        /**
+         * Whether power menu expanded desktop is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_EXPANDED_DESKTOP_ENABLED = "power_menu_expanded_desktop_enabled";
+
+        /**
+         * Whether the power menu reboot menu is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_REBOOT_ENABLED = "power_menu_reboot_enabled";
+
+        /**
+         * Whether power menu screenshot is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_SCREENSHOT_ENABLED = "power_menu_screenshot_enabled";
+
+        /**
+         * Whether power menu airplane toggle is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_AIRPLANE_ENABLED = "power_menu_airplane_enabled";
+
+        /**
+         * Whether power menu silent mode is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_SILENT_ENABLED = "power_menu_silent_enabled";
+
+        /**
+         * Display style of the status bar battery information
+         * 0: Display the stock battery information
+         * 1: Display cm battery percentage implementation / dont show stock icon
+         * 2: Display cm circle battery implementation without percentage
+         * 3: Display cm circle battery implementation with percentage
+         * 4: Hide the battery information
+         * default: 0
+         * @hide
+         */
+        public static final String STATUS_BAR_BATTERY = "status_bar_battery";
+
+        /**
+         * Whether to show the signal text or signal bars.
+         * default: 0
+         * 0: show signal bars
+         * 1: show signal text numbers
+         * 2: show signal text numbers w/small dBm appended
+         * @hide
+         */
+        public static final String STATUS_BAR_SIGNAL_TEXT = "status_bar_signal";
+
+         /**
+         * Whether to control brightness from status bar
+         *
+         * @hide
+         */
+        public static final String STATUS_BAR_BRIGHTNESS_CONTROL = "status_bar_brightness_control";
+
+        /**
+         * Show the pending notification counts as overlays on the status bar
+         * @hide
+         */
+        public static final String STATUS_BAR_NOTIF_COUNT = "status_bar_notif_count";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -2366,6 +2514,8 @@ public final class Settings {
             AUTO_TIME_ZONE,             // moved to global
             TIME_12_24,
             DATE_FORMAT,
+            ACCELEROMETER_ROTATION,
+            USER_ROTATION,
             DTMF_TONE_WHEN_DIALING,
             DTMF_TONE_TYPE_WHEN_DIALING,
             HEARING_AID,
@@ -2380,7 +2530,11 @@ public final class Settings {
             SIP_CALL_OPTIONS,
             SIP_RECEIVE_CALLS,
             POINTER_SPEED,
-            VIBRATE_WHEN_RINGING
+            VIBRATE_WHEN_RINGING,
+            POWER_MENU_SCREENSHOT_ENABLED,
+            POWER_MENU_REBOOT_ENABLED,
+            POWER_MENU_AIRPLANE_ENABLED,
+            POWER_MENU_SILENT_ENABLED,
         };
 
         // Settings moved to Settings.Secure
@@ -4065,6 +4219,12 @@ public final class Settings {
          * @hide
          */
         public static final String SCREENSAVER_DEFAULT_COMPONENT = "screensaver_default_component";
+
+        /**
+         * Whether to allow killing of the foreground app by long-pressing the Back button
+         * @hide
+         */
+        public static final String KILL_APP_LONGPRESS_BACK = "kill_app_longpress_back";
 
         /**
          * Name of a package that the current user has explicitly allowed to see all of that

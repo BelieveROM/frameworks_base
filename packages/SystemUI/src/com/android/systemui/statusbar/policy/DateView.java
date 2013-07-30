@@ -16,12 +16,19 @@
 
 package com.android.systemui.statusbar.policy;
 
+import android.app.ActivityManagerNative;
+import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Canvas;
+import android.net.Uri;
+import android.provider.CalendarContract;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewParent;
 import android.widget.TextView;
 
@@ -33,8 +40,10 @@ import java.util.Locale;
 
 import libcore.icu.ICU;
 
-public class DateView extends TextView {
+public class DateView extends TextView implements OnClickListener {
     private static final String TAG = "DateView";
+
+    private View mParent;
 
     private boolean mAttachedToWindow;
     private boolean mWindowVisible;
@@ -55,6 +64,7 @@ public class DateView extends TextView {
 
     public DateView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setOnClickListener(this);
     }
 
     @Override
@@ -62,12 +72,24 @@ public class DateView extends TextView {
         super.onAttachedToWindow();
         mAttachedToWindow = true;
         setUpdates();
+
+        if (mParent == null) {
+            final ViewParent parent = getParent();
+            if (parent instanceof View) {
+                mParent = (View)parent;
+                mParent.setOnClickListener(this);
+            }
+        }
     }
     
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mAttachedToWindow = false;
+        if (mParent != null) {
+            mParent.setOnClickListener(null);
+            mParent = null;
+        }
         setUpdates();
     }
 
@@ -131,4 +153,33 @@ public class DateView extends TextView {
             }
         }
     }
+    private void collapseStartActivity(Intent what) {
+          // collapse status bar
+          StatusBarManager statusBarManager = (StatusBarManager) getContext().getSystemService(
+                  Context.STATUS_BAR_SERVICE);
+         statusBarManager.collapsePanels();
+  
+          // dismiss keyguard in case it was active and no passcode set
+          try {
+              ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
+         } catch (Exception ex) {
+              // no action needed here
+          }
+  
+          // start activity
+          what.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+          mContext.startActivity(what);
+      }
+  
+      @Override
+      public void onClick(View v) {
+          long nowMillis = System.currentTimeMillis();
+  
+          Uri.Builder builder = CalendarContract.CONTENT_URI.buildUpon();
+          builder.appendPath("time");
+          ContentUris.appendId(builder, nowMillis);
+          Intent intent = new Intent(Intent.ACTION_VIEW)
+                  .setData(builder.build());
+          collapseStartActivity(intent);
+      }
 }
