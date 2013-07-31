@@ -563,6 +563,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     int mPortraitRotation = 0;   // default portrait rotation
     int mUpsideDownRotation = 0; // "other" portrait rotation
 
+
+    int mOverscanLeft = 0;
+    int mOverscanTop = 0;
+    int mOverscanRight = 0;
+    int mOverscanBottom = 0;
+
+
     // Screenshot trigger states
     // Time to volume and power must be pressed within this interval of each other.
     private static final long SCREENSHOT_CHORD_DEBOUNCE_DELAY_MILLIS = 150;
