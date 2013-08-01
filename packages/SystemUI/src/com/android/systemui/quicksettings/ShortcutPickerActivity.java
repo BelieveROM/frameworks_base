@@ -98,7 +98,7 @@ public class ShortcutPickerActivity extends Activity implements ShortcutPickHelp
         mImageTmp = new File(getCacheDir() + "/target.tmp");
         mActivity = this;
         mEmptyLabel = getResources().getString(R.string.empty_tile_title);
-        prefs = getSharedPreferences("QuickSettingsTilesContent", 0);
+        prefs = getSharedPreferences("quick_settings_custom_shortcut", 0);
         pickShortcut();
         Log.i(TAG, "onCreate finished! callingTileID="+callingTileID);
     }

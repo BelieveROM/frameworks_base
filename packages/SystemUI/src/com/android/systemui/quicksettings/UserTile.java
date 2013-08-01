@@ -35,6 +35,7 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Profile;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManagerGlobal;
@@ -49,13 +50,16 @@ import com.android.systemui.statusbar.phone.QuickSettingsController;
 public class UserTile extends QuickSettingsTile {
 
     private static final String TAG = "UserTile";
+    private final boolean DBG = false;
+
     private Drawable userAvatar;
     private AsyncTask<Void, Void, Pair<String, Drawable>> mUserInfoTask;
     public static QuickSettingsTile mInstance;
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new UserTile(context, inflater, container, qsc);
+        mInstance = null;
+        mInstance = new UserTile(context, inflater, container, qsc);
         return mInstance;
     }
 
@@ -65,7 +69,7 @@ public class UserTile extends QuickSettingsTile {
 
         mTileLayout = R.layout.quick_settings_tile_user;
 
-        onClick = new View.OnClickListener() {
+        mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mQsc.mBar.collapseAllPanels(true);
@@ -73,16 +77,13 @@ public class UserTile extends QuickSettingsTile {
                         (UserManager) mContext.getSystemService(Context.USER_SERVICE);
                 if (um.getUsers(true).size() > 1) {
                     try {
-                        WindowManagerGlobal.getWindowManagerService().lockNow(
-                                LockPatternUtils.USER_SWITCH_LOCK_OPTIONS);
+                        WindowManagerGlobal.getWindowManagerService().lockNow(null);
                     } catch (RemoteException e) {
-                        Log.e(TAG, "Couldn't show user switcher", e);
+                        if (DBG) Log.e(TAG, "Couldn't show user switcher", e);
                     }
                 } else {
-                    Intent intent = ContactsContract.QuickContact.composeQuickContactsIntent(
-                            mContext, v, ContactsContract.Profile.CONTENT_URI,
-                            ContactsContract.QuickContact.MODE_LARGE, null);
-                    mContext.startActivityAsUser(intent, new UserHandle(UserHandle.USER_CURRENT));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, ContactsContract.Profile.CONTENT_URI);
+                    startSettingsActivity(intent);
                 }
             }
         };
@@ -103,10 +104,18 @@ public class UserTile extends QuickSettingsTile {
 
     @Override
     void updateQuickSettings() {
-        ImageView iv = (ImageView) mTile.findViewById(R.id.user_imageview);
         TextView tv = (TextView) mTile.findViewById(R.id.user_textview);
-        tv.setText(mLabel);
-        iv.setImageDrawable(userAvatar);
+        if (tv != null) {
+            tv.setText(mLabel);
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTileTextSize);
+            if (mTileTextColor != -2) {
+                tv.setTextColor(mTileTextColor);
+            }
+        }
+        ImageView iv = (ImageView) mTile.findViewById(R.id.user_imageview);
+        if (iv != null) {
+            iv.setImageDrawable(userAvatar);
+        }
     }
 
     private void queryForUserInformation() {
@@ -117,10 +126,10 @@ public class UserTile extends QuickSettingsTile {
             currentUserContext = mContext.createPackageContextAsUser("android", 0,
                     new UserHandle(userInfo.id));
         } catch (NameNotFoundException e) {
-            Log.e(TAG, "Couldn't create user context", e);
+            if (DBG) Log.e(TAG, "Couldn't create user context", e);
             throw new RuntimeException(e);
         } catch (RemoteException e) {
-            Log.e(TAG, "Couldn't get user info", e);
+            if (DBG) Log.e(TAG, "Couldn't get user info", e);
         }
         final int userId = userInfo.id;
         final String userName = userInfo.name;

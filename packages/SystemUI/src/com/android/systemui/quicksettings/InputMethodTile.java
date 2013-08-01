@@ -26,12 +26,14 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.InputMethodSubtype;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.systemui.R;
@@ -46,7 +48,8 @@ public class InputMethodTile extends QuickSettingsTile {
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new InputMethodTile(context, inflater, container, qsc);
+        mInstance = null;
+        mInstance = new InputMethodTile(context, inflater, container, qsc);
         return mInstance;
     }
 
@@ -56,7 +59,7 @@ public class InputMethodTile extends QuickSettingsTile {
 
         mDrawable = R.drawable.ic_qs_ime;
 
-        onClick = new OnClickListener() {
+        mOnClick = new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -147,9 +150,19 @@ public class InputMethodTile extends QuickSettingsTile {
 
     @Override
     void updateQuickSettings() {
-        TextView tv = (TextView) mTile.findViewById(R.id.tile_textview);
-        tv.setText(mLabel);
-        tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
+        TextView tv = (TextView) mTile.findViewById(R.id.text);
+        if (tv != null) {
+                tv.setText(mLabel);
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTileTextSize);
+            tv.setPadding(0, mTileTextPadding, 0, 0);
+            if (mTileTextColor != -2) {
+                tv.setTextColor(mTileTextColor);
+            }
+        }
+        ImageView image = (ImageView) mTile.findViewById(R.id.image);
+        if (image != null) {
+            image.setImageResource(mDrawable);
+        }
         mTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
         super.updateQuickSettings();
     }
