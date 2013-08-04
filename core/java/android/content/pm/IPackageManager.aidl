@@ -42,6 +42,7 @@ import android.content.pm.ServiceInfo;
 import android.content.pm.UserInfo;
 import android.content.pm.VerificationParams;
 import android.content.pm.VerifierDeviceIdentity;
+import android.content.pm.ThemeInfo;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.content.IntentSender;
@@ -138,6 +139,7 @@ interface IPackageManager {
     ParceledListSlice getPackagesHoldingPermissions(in String[] permissions,
             int flags, int userId);
 
+    
     /**
      * This implements getInstalledApplications via a "last returned row"
      * mechanism that is not exposed in the API. This is to get around the IPC

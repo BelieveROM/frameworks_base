@@ -36,7 +36,7 @@ public class StatusBarNotification implements Parcelable {
     // TODO: make this field private and move callers to an accessor that
     // ensures sourceUser is applied.
 
-    private final Notification notification;
+    public final Notification notification;
     private final UserHandle user;
     private final long postTime;
 
