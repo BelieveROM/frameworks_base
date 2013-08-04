@@ -2880,6 +2880,13 @@ public final class Settings {
          */
         public static final String HALO_HIDE = "halo_hide"; 
 
+
+	/**
+         * HALO size fraction, default is 1.0f (normal)
+         * @hide
+         */
+        public static final String HALO_SIZE = "halo_size";
+
 	 /**
          * number of tiles per row in quick settings
          *
