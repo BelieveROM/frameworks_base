@@ -2905,7 +2905,14 @@ public final class Settings {
          */
         public static final String QUICK_TILES_PER_ROW = "quick_tiles_per_row";
 
-        /**
+    
+	/**
+         * Do you want popups/floating windows?
+         * @hide
+         */
+        public static final String WE_WANT_POPUPS = "we_want_popups"; 
+
+	 /**
          * number of tiles per row in quick settings
          *
          * @hide
