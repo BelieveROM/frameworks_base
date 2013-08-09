@@ -334,14 +334,14 @@
     <string name="silent_mode_ring">Ringer on</string>
 
     <!-- Shutdown Progress Dialog. This is shown if the user chooses to power off the phone. -->
-    <string name="shutdown_progress">Shutting down\u2026</string>
+    <string name="shutdown_progress">Believe is Shutting down\u2026</string>
 
     <!-- Shutdown Confirmation Dialog.  When the user chooses to power off the phone, there will
          be a confirmation dialog.  This is the message. -->
-    <string name="shutdown_confirm" product="tablet">Your tablet will shut down.</string>
+    <string name="shutdown_confirm" product="tablet">Believe will shut down.</string>
     <!-- Shutdown Confirmation Dialog.  When the user chooses to power off the phone, there will
          be a confirmation dialog.  This is the message. -->
-    <string name="shutdown_confirm" product="default">Your phone will shut down.</string>
+    <string name="shutdown_confirm" product="default">Believe will shut down.</string>
 
     <!-- Shutdown Confirmation Dialog.  When the user chooses to power off the phone, it asks
          the user if they'd like to shut down.  This is the message.  This is used instead of
@@ -378,7 +378,7 @@
     <string name="global_action_lock">Screen lock</string>
 
     <!-- label for item that turns off power in phone options dialog -->
-    <string name="global_action_power_off">Power off</string>
+    <string name="global_action_power_off">Power Believe off</string>
 
     <!-- label for item that generates a bug report in the phone options dialog -->
     <string name="global_action_bug_report">Bug report</string>
@@ -395,7 +395,7 @@
     <string name="global_action_toggle_silent_mode">Silent mode</string>
 
     <!-- label for item that reboots the phone in phone options dialog -->
-    <string name="global_action_reboot">Reboot</string>
+    <string name="global_action_reboot">Reboot Believe</string>
 
     <!-- status message in phone options dialog for when silent mode is enabled -->
     <string name="global_action_silent_mode_on_status">Sound is OFF</string>
@@ -423,7 +423,7 @@
     <string name="safeMode">Safe mode</string>
 
     <!-- Label for the Android system components when they are shown to the user. -->
-    <string name="android_system_label">Android System</string>
+    <string name="android_system_label">Believe System</string>
 
     <!-- Title of a category of application permissions, listed so the user can choose whether they want to allow the application to do this. -->
     <string name="permgrouplab_costMoney">Services that cost you money</string>
@@ -3140,7 +3140,7 @@
       has violated its self-enforced StrictMode policy.</string>
 
     <!-- [CHAR LIMIT=40] Title of dialog that is shown when performing a system upgrade. -->
-    <string name="android_upgrading_title">Android is upgrading\u2026</string>
+    <string name="android_upgrading_title">BelieveROM is upgrading\u2026</string>
 
     <!-- [CHAR LIMIT=NONE] Message shown in upgrading dialog for each .apk that is optimized. -->
     <string name="android_upgrading_apk">Optimizing app
@@ -3402,9 +3402,9 @@
     <!-- See EXTMEDIA_FORMAT.  EXTMEDIA_FORMAT_DIALOG:  After the user selects the notification, a dialog is shown asking if he wants to format the SD card.  This is the title. -->
     <string name="extmedia_format_title" product="default">Format SD card?</string>
     <!-- See EXTMEDIA_FORMAT.   This is the message. [CHAR LIMIT=NONE] -->
-    <string name="extmedia_format_message" product="nosdcard">All files stored in your USB storage will be erased. This action can\'t be reversed!</string>
+    <string name="extmedia_format_message" product="nosdcard">All files stored in your USB storage (under path \'%1$s\') will be erased. This action can\'t be reversed!</string>
     <!-- See EXTMEDIA_FORMAT.   This is the message. -->
-    <string name="extmedia_format_message" product="default">All data on your card will be lost.</string>
+    <string name="extmedia_format_message" product="default">All data on your card (under path \'%1$s\') will be erased. This action can\'t be reversed!</string>
     <!-- See EXTMEDIA_FORMAT.    This is the button text to format the sd card. -->
     <string name="extmedia_format_button_format">Format</string>
 
