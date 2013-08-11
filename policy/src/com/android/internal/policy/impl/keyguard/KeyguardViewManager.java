@@ -190,7 +190,7 @@ public class KeyguardViewManager {
             if (!mNeedsInput) {
                 flags |= WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
             }
-           
+
             final int stretch = ViewGroup.LayoutParams.MATCH_PARENT;
             final int type = isActivity ? WindowManager.LayoutParams.TYPE_APPLICATION
                     : WindowManager.LayoutParams.TYPE_KEYGUARD;
@@ -200,7 +200,6 @@ public class KeyguardViewManager {
             lp.windowAnimations = com.android.internal.R.style.Animation_LockScreen;
             lp.screenOrientation = enableScreenRotation ?
                     ActivityInfo.SCREEN_ORIENTATION_USER : ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
-
             lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
             lp.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_FORCE_HARDWARE_ACCELERATED;
             lp.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_SET_NEEDS_MENU_KEY;
