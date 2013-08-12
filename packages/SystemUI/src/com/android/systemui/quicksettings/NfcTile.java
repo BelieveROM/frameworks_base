@@ -47,7 +47,7 @@ public class NfcTile extends QuickSettingsTile {
             QuickSettingsController qsc) {
         super(context, inflater, container, qsc);
 
-        setState(NFC_ADAPTER_UNKNOWN);
+        setState(getNfcState());
 
         mOnClick = new View.OnClickListener() {
             @Override
@@ -111,17 +111,21 @@ public class NfcTile extends QuickSettingsTile {
         case NfcAdapter.STATE_OFF:
         default:
             mDrawable = R.drawable.ic_qs_nfc_off;
-            mLabel += " " + mContext.getString(R.string.quick_settings_label_disabled);
+            mLabel = mContext.getString(R.string.quick_settings_nfc) + " "
+                      + mContext.getString(R.string.quick_settings_label_disabled);
             break;
         }
     }
 
     private int getNfcState() {
-        if (mNfcAdapter != null || (mNfcAdapter = NfcAdapter.getDefaultAdapter(mContext)) != null) {
-            return mNfcAdapter.getAdapterState();
-        } else {
-            Log.d(TAG, "No NFC adapter available");
-            return NFC_ADAPTER_UNKNOWN;
+        if (mNfcAdapter == null) {
+            try {
+                mNfcAdapter = NfcAdapter.getNfcAdapter(mContext);
+            } catch (UnsupportedOperationException e) {
+                return NFC_ADAPTER_UNKNOWN;
+            }
         }
+        return mNfcAdapter.getAdapterState();
     }
+
 }
