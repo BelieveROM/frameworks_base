@@ -2039,11 +2039,15 @@ public class Resources {
         return true;
     }
 
+
     static private final int LAYOUT_DIR_CONFIG = ActivityInfo.activityInfoConfigToNative(
             ActivityInfo.CONFIG_LAYOUT_DIRECTION);
 
 
-    /** @hide */
+  
+    /**
+     * @hide
+     */
     public final void updateStringCache() {
         synchronized (mTmpValue) {
             mAssets.recreateStringBlocks();
