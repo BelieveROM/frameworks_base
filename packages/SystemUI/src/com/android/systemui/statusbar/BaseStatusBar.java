@@ -293,7 +293,6 @@ public abstract class BaseStatusBar extends SystemUI implements
             return tracker.active;
         }
 
->>>>>>> 6d51a5e... Frameworks: SlimPIE extended (1/2)
     };
 
     // UI-specific methods
@@ -1581,6 +1580,25 @@ public abstract class BaseStatusBar extends SystemUI implements
                     Settings.System.NAVIGATION_BAR_SHOW, showByDefault) == 1;
             boolean autoHideStatusBar = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.HIDE_STATUSBAR, 0) == 1;
+            boolean navBarCanMove = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_CAN_MOVE, 1) == 1
+                        && screenLayout() != Configuration.SCREENLAYOUT_SIZE_LARGE
+                        && screenLayout() != Configuration.SCREENLAYOUT_SIZE_XLARGE;
+            boolean navigationBarHeight = Settings.System.getInt(mContext.getContentResolver(),
+                                Settings.System.NAVIGATION_BAR_HEIGHT,
+                                mContext.getResources().getDimensionPixelSize(
+                                                com.android.internal.R.dimen.navigation_bar_height)) != 0;
+            boolean navigationBarHeightLandscape = Settings.System.getInt(mContext.getContentResolver(),
+                                Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE,
+                                mContext.getResources().getDimensionPixelSize(
+                                                com.android.internal.R.dimen.navigation_bar_height_landscape)) != 0;
+            boolean navigationBarWidth = Settings.System.getInt(mContext.getContentResolver(),
+                                Settings.System.NAVIGATION_BAR_WIDTH,
+                                mContext.getResources().getDimensionPixelSize(
+                                                com.android.internal.R.dimen.navigation_bar_width)) != 0;
+
+            // disable on phones in landscape right trigger for navbar
+
             boolean disableRightTriggerForNavbar =
                     screenLayout() != Configuration.SCREENLAYOUT_SIZE_LARGE
                     && !isScreenPortrait()
