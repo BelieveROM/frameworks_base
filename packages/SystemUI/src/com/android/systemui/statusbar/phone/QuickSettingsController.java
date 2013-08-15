@@ -81,7 +81,6 @@ public class QuickSettingsController {
     public static final String TILE_MOBILENETWORK = "toggleMobileNetwork";
     public static final String TILE_NETWORKMODE = "toggleNetworkMode";
     public static final String TILE_NFC = "toggleNfc";
-    public static final String TILE_PROFILE = "toggleProfile";
     public static final String TILE_QUIETHOURS = "toggleQuietHours";
     public static final String TILE_REBOOT = "toggleReboot";
     public static final String TILE_RINGER = "toggleSound";
@@ -248,9 +247,6 @@ public class QuickSettingsController {
             } else if (tileName.equals(TILE_MOBILENETWORK)) {
                 qs = createTile(deviceSupportsTelephony(), tileName, instanceID, inflater,
                     mStatusBarService.mNetworkController);
-            } else if (tileName.equals(TILE_PROFILE)) {
-                qs = createTile(systemProfilesEnabled(resolver), tileName, instanceID,
-                    inflater, null);
             } else if (tileName.equals(TILE_WIFI)
                 || tileName.equals(TILE_AIRPLANE)) {
                 qs = createTile(true, tileName, instanceID, inflater,
@@ -398,10 +394,7 @@ public class QuickSettingsController {
         return (cm.getTetherableUsbRegexs().length != 0);
     }
 
-    boolean systemProfilesEnabled(ContentResolver resolver) {
-        return (Settings.System.getInt(resolver, Settings.System.SYSTEM_PROFILES_ENABLED, 1) == 1);
-    }
-
+   
     void setBar(PanelBar bar) {
         mBar = bar;
     }

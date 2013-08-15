@@ -275,6 +275,20 @@ public final class Settings {
             "android.settings.DISPLAY_SETTINGS";
 
     /**
+     * Activity Action: Show settings to allow configuration of display.
+     * <p>
+     * In some cases, a matching Activity may not exist, so ensure you
+     * safeguard against this.
+     * <p>
+     * Input: Nothing.
+     * <p>
+     * Output: Nothing.
+     */
+    @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
+    public static final String ACTION_NOTIFICATION_SHORTCUTS_SETTINGS =
+            "android.settings.slim.notificationshortcuts.NOTIFICATION_SHORTCUTS";
+
+    /**
      * Activity Action: Show settings to allow configuration of locale.
      * <p>
      * In some cases, a matching Activity may not exist, so ensure you
@@ -1799,10 +1813,146 @@ public final class Settings {
          */
         public static final int SCREEN_BRIGHTNESS_MODE_MANUAL = 0;
 
-        /**
+       /**
          * SCREEN_BRIGHTNESS_MODE value for automatic mode.
          */
         public static final int SCREEN_BRIGHTNESS_MODE_AUTOMATIC = 1;
+
+        /**
+         * Indicates that custom light sensor settings has changed.
+         * The value is random and changes reloads light settings.
+         *
+         * @hide
+         */
+        public static final String LIGHTS_CHANGED = "lights_changed";
+
+        /**
+         * Whether custom light sensor levels & values are enabled. The value is
+         * boolean (1 or 0).
+         *
+         * @hide
+         */
+        public static final String LIGHT_SENSOR_CUSTOM = "light_sensor_custom";
+
+        /**
+         * Screen dim value to use if LIGHT_SENSOR_CUSTOM is set. The value is int.
+         * Default is android.os.BRIGHTNESS_DIM.
+         *
+         * @hide
+         */
+        public static final String LIGHT_SCREEN_DIM = "light_screen_dim";
+
+        /**
+         * Custom light sensor levels. The value is a comma separated int array
+         * with length N.
+         * Example: "100,300,3000".
+         *
+         * @hide
+         */
+        public static final String LIGHT_SENSOR_LEVELS = "light_sensor_levels";
+
+        /**
+         * Custom light sensor lcd values. The value is a comma separated int array
+         * with length N+1.
+         * Example: "10,50,100,255".
+         *
+         * @hide
+         */
+        public static final String LIGHT_SENSOR_LCD_VALUES = "light_sensor_lcd_values";
+
+        /**
+         * Custom light sensor lcd values. The value is a comma separated int array
+         * with length N+1.
+         * Example: "10,50,100,255".
+         *
+         * @hide
+         */
+        public static final String LIGHT_SENSOR_BUTTON_VALUES = "light_sensor_button_values";
+
+        /**
+         * Custom light sensor lcd values. The value is a comma separated int array
+         * with length N+1.
+         * Example: "10,50,100,255".
+         *
+         * @hide
+         */
+        public static final String LIGHT_SENSOR_KEYBOARD_VALUES = "light_sensor_keyboard_values";
+
+        /**
+         * Whether light sensor is allowed to decrease when calculating automatic
+         * backlight. The value is boolean (1 or 0).
+         *
+         * @hide
+         */
+        public static final String LIGHT_DECREASE = "light_decrease";
+
+        /**
+         * Light sensor hysteresis for decreasing backlight. The value is
+         * int (0-99) representing % (0-0.99 as float). Example:
+         *
+         * Levels     Output
+         * 0 - 100    50
+         * 100 - 200  100
+         * 200 - Inf  255
+         *
+         * Current sensor value is 150 which gives light value 100. Hysteresis is 50.
+         * Current level lower bound is 100 and previous lower bound is 0.
+         * Sensor value must drop below 100-(100-0)*(50/100)=50 for output to become 50
+         * (corresponding to the 0 - 100 level).
+         * @hide
+         */
+        public static final String LIGHT_HYSTERESIS = "light_hysteresis";
+
+        /**
+         * Whether light sensor used when calculating automatic backlight should
+         * be filtered through an moving average filter.
+         * The value is boolean (1 or 0).
+         *
+         * @hide
+         */
+        public static final String LIGHT_FILTER = "light_filter";
+
+        /**
+         * Window length of filter used when calculating automatic backlight.
+         * One minute means that the average sensor value last minute is used.
+         * The value is integer (milliseconds)
+         *
+         * @hide
+         */
+        public static final String LIGHT_FILTER_WINDOW = "light_filter_window";
+
+        /**
+         * Reset threshold of filter used when calculating automatic backlight.
+         * Sudden large jumps in sensor value resets the filter. This is used
+         * to make the filter respond quickly to large enough changes in input
+         * while still filtering small changes. Example:
+         *
+         * Current filter value (average) is 100 and sensor value is changing to
+         * 10, 150, 100, 30, 50. The filter is continously taking the average of
+         * the samples. Now the user goes outside and the value jumps over 1000.
+         * The difference between current average and new sample is larger than
+         * the reset threshold and filter is reset. It begins calculating a new
+         * average on samples around 1000 (say, 800, 1200, 1000, 1100 etc.)
+         *
+         * The value is integer (lux)
+         *
+         * @hide
+         */
+        public static final String LIGHT_FILTER_RESET = "light_filter_reset";
+
+        /**
+         * Sample interval of filter used when calculating automatic backlight.
+         * The value is integer (milliseconds)
+         *
+         * @hide
+         */
+        public static final String LIGHT_FILTER_INTERVAL = "light_filter_interval";
+
+        /**
+         * Whether to enable the electron beam animation when turning screen on
+         *
+         * @hide */
+        public static final String ELECTRON_BEAM_ANIMATION_ON = "electron_beam_animation_on";
 
         /**
          * Whether to enable the electron beam animation when turning screen off
@@ -2414,6 +2564,12 @@ public final class Settings {
         public static final String SIP_ASK_ME_EACH_TIME = "SIP_ASK_ME_EACH_TIME";
 
         /**
+         * Torch state (flashlight)
+         * @hide
+         */
+        public static final String TORCH_STATE = "torch_state";
+
+        /**
          * Pointer speed setting.
          * This is an integer value in a range between -7 and +7, so there are 15 possible values.
          *   -7 = slowest
@@ -2422,6 +2578,94 @@ public final class Settings {
          * @hide
          */
         public static final String POINTER_SPEED = "pointer_speed";
+
+        /**
+         * QuickSettings flip button longpress PowerWidget toggle
+         *
+         * @hide
+         */
+        public static final String QS_LONGPRESS_PW_TOGGLE = "qs_longpress_pw_toggle";
+
+        /**
+         * Use the Notification Power Widget? (Who wouldn't!)
+         *
+         * @hide
+         */
+        public static final String EXPANDED_VIEW_WIDGET = "expanded_view_widget";
+
+        /**
+         * Whether to hide the notification screen after clicking on a widget
+         * button
+         *
+         * @hide
+         */
+        public static final String EXPANDED_HIDE_ONCHANGE = "expanded_hide_onchange";
+
+        /**
+         * Hide scroll bar in power widget
+         *
+         * @hide
+         */
+        public static final String EXPANDED_HIDE_SCROLLBAR = "expanded_hide_scrollbar";
+
+        /**
+         * Haptic feedback in power widget
+         *
+         * @hide
+         */
+        public static final String EXPANDED_HAPTIC_FEEDBACK = "expanded_haptic_feedback";
+
+        /**
+         * Widget Buttons to Use
+         *
+         * @hide
+         */
+        public static final String WIDGET_BUTTONS = "expanded_widget_buttons";
+
+        /**
+         * Widget Buttons to Use - Tablet
+         *
+         * @hide
+         */
+        public static final String WIDGET_BUTTONS_TABLET = "expanded_widget_buttons_tablet";
+
+        /**
+         * Navigation controls to Use
+         *
+         * @hide
+         */
+        public static final String NAV_BUTTONS = "nav_buttons";
+
+        /**
+        * Notification Power Widget - Custom Brightness Mode
+        * @hide
+        */
+        public static final String EXPANDED_BRIGHTNESS_MODE = "expanded_brightness_mode";
+
+        /**
+        * Notification Power Widget - Custom Network Mode
+        * @hide
+        */
+        public static final String EXPANDED_NETWORK_MODE = "expanded_network_mode";
+
+        /**
+        * Notification Power Widget - Custom Screen Timeout
+        * @hide
+        */
+        public static final String EXPANDED_SCREENTIMEOUT_MODE = "expanded_screentimeout_mode";
+
+        /**
+        * Notification Power Widget - Custom Ring Mode
+        * @hide
+        */
+        public static final String EXPANDED_RING_MODE = "expanded_ring_mode";
+
+        /**
+        * Notification Power Widget - Custom Torch Mode
+        * @hide
+        */
+        public static final String EXPANDED_FLASH_MODE = "expanded_flash_mode";
+
 
         /**
          * Quick Settings Panel Tiles to Use
@@ -2507,6 +2751,13 @@ public final class Settings {
          * @hide
          */
         public static final String QS_NO_NOTIFICATION_PULLDOWN = "qs_no_notification_pulldown";
+
+        /**
+         * Quick Settings Collapse Pane
+         *
+         * @hide
+         */
+        public static final String QS_COLLAPSE_PANEL = "qs_collapse_panel";
 
         /**
          * Quick Settings Panel Dynamic Tiles
@@ -2719,6 +2970,55 @@ public final class Settings {
          * @hide
          */
         public static final String HEADSET_CONNECT_PLAYER = "headset_connect_player";
+
+       /**
+         * Whether to enable quiet hours.
+         * @hide
+         */
+        public static final String QUIET_HOURS_ENABLED = "quiet_hours_enabled";
+
+        /**
+         * Sets when quiet hours starts. This is stored in minutes from the start of the day.
+         * @hide
+         */
+        public static final String QUIET_HOURS_START = "quiet_hours_start";
+
+        /**
+         * Sets when quiet hours end. This is stored in minutes from the start of the day.
+         * @hide
+         */
+        public static final String QUIET_HOURS_END = "quiet_hours_end";
+
+        /**
+         * Whether to remove the sound from outgoing notifications during quiet hours.
+         * @hide
+         */
+        public static final String QUIET_HOURS_MUTE = "quiet_hours_mute";
+
+        /**
+         * Whether to disable haptic feedback during quiet hours.
+         * @hide
+         */
+        public static final String QUIET_HOURS_HAPTIC = "quiet_hours_haptic";
+
+        /**
+         * Whether to remove the vibration from outgoing notifications during quiet hours.
+         * @hide
+         */
+        public static final String QUIET_HOURS_STILL = "quiet_hours_still";
+
+        /**
+         * Whether to attempt to dim the LED color during quiet hours.
+         * @hide
+         */
+        public static final String QUIET_HOURS_DIM = "quiet_hours_dim";
+
+        /**
+         * Always show settings button toggle
+         * @hide
+         */
+        public static final String NOTIFICATION_SETTINGS_BUTTON = "notification_settings_btn";
+
 
 
         /**
@@ -3026,8 +3326,89 @@ public final class Settings {
         @Deprecated
         public static final String WIFI_WATCHDOG_PING_TIMEOUT_MS =
             Secure.WIFI_WATCHDOG_PING_TIMEOUT_MS;
-    }
 
+        /**
+         * @hide
+         * Show Wifi network name in notification shade
+         * 0 - don't show
+         * 1 - show
+         */
+        public static final String NOTIFICATION_SHOW_WIFI_SSID = "notification_show_wifi_ssid";
+
+        /**
+        * Sets the portrait background of notification drawer
+        * @hide
+        */
+        public static final String NOTIFICATION_BACKGROUND = "notification_background";
+
+        /**
+        * Sets the landscape background of notification drawer
+        * @hide
+        */
+        public static final String NOTIFICATION_BACKGROUND_LANDSCAPE = "notification_background_landscape";
+
+        /**
+        * Sets the alpha (transparency) of notification wallpaper
+        * @hide
+        */
+        public static final String NOTIF_WALLPAPER_ALPHA = "notif_wallpaper_alpha";
+
+        /**
+        * Sets the alpha (transparency) of notifications
+        * @hide
+        */
+        public static final String NOTIF_ALPHA = "notif_alpha";
+
+        /**
+         * @hide
+         */
+        public static final String STATUS_BAR_BRIGHTNESS_SLIDER = "statusbar_brightness_slider";
+
+        /**
+         * @hide
+         */
+        public static final String STATUSBAR_TOGGLES_BRIGHTNESS_LOC = "statusbar_toggles_brightness_loc";
+
+         /**
+         * Whether to enable notification shortcuts (toggle)
+         *
+         * @hide
+         */
+
+        public static final String NOTIFICATION_SHORTCUTS_TOGGLE = "pref_notification_shortcuts_toggle";
+
+        /**
+         * Stores the number of notification shortcuts to display settings for
+         * @hide
+         */
+        public static final String NOTIFICATION_SHORTCUTS_QUANTITY = "pref_notification_shortcuts_quantity";
+
+        /**
+         * Stores values for notification shortcut targets
+         * @hide
+         */
+        public static final String NOTIFICATION_SHORTCUTS_TARGETS = "notification_shortcuts_targets";
+
+        /**
+         * Stores the value for notification shortcuts icon color
+         * @hide
+         */
+        public static final String NOTIFICATION_SHORTCUTS_COLOR = "notification_shortcuts_color";
+
+        /**
+         * Whether to colorize the default application icons
+         * @hide
+         */
+        public static final String NOTIFICATION_SHORTCUTS_COLORIZE_TOGGLE = "notification_shortcuts_colorize_toggle";
+
+        /**
+         * Whether to colorize the default application icons
+         * @hide
+         */
+        public static final String NOTIFICATION_SHORTCUTS_HIDE_CARRIER = "notification_shortcuts_hide_carrier";
+
+    }
+   
     /**
      * Secure system settings, containing system preferences that applications
      * can read but are not allowed to write.  These are for preferences that
@@ -5896,6 +6277,20 @@ public final class Settings {
          * @hide
          */
         public static final String SELINUX_STATUS = "selinux_status";
+
+        /**
+         * Whether Expanded desktop is currently running or not
+         * @hide
+         */
+        public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
+
+         /**
+         * Expanded desktop mode
+         * 0 = none, 1 = hide only navbar, 2 = hide only statusbar, 3 = hide both
+         * @hide
+         */
+        public static final String EXPANDED_DESKTOP_MODE = "expanded_desktop_mode";
+
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings

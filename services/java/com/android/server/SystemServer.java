@@ -39,6 +39,7 @@ import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.service.dreams.DreamService;
 import android.util.DisplayMetrics;
 import android.util.EventLog;
@@ -83,9 +84,6 @@ class ServerThread extends Thread {
     private static final String TAG = "SystemServer";
     private static final String ENCRYPTING_STATE = "trigger_restart_min_framework";
     private static final String ENCRYPTED_STATE = "1";
-
-    public static final String FAST_CHARGE_DIR = "/sys/kernel/fast_charge";
-    public static final String FAST_CHARGE_FILE = "force_fast_charge";
 
     ContentResolver mContentResolver;
 
@@ -1033,14 +1031,18 @@ class ServerThread extends Thread {
         // restore fast charge state before starting systemui
         boolean enabled = Settings.System.getInt(context.getContentResolver(), Settings.System.FCHARGE_ENABLED, 0) == 1;
             try {
-                    File fastcharge = new File(FAST_CHARGE_DIR, FAST_CHARGE_FILE);
-                    if (fastcharge.exists()) {
-                        FileWriter fwriter = new FileWriter(fastcharge);
-                        BufferedWriter bwriter = new BufferedWriter(fwriter);
-                        bwriter.write(enabled ? "1" : "0");
-                        bwriter.close();
-                    } else {
-                        Log.e("FChargeToggle", "No fast charge support");
+                     String fchargePath = context.getResources()
+                            .getString(com.android.internal.R.string.config_fastChargePath);
+                    if (!fchargePath.isEmpty()) {
+                        File fastcharge = new File(fchargePath);
+                        if (fastcharge.exists()) {
+                            FileWriter fwriter = new FileWriter(fastcharge);
+                            BufferedWriter bwriter = new BufferedWriter(fwriter);
+                            bwriter.write(enabled ? "1" : "0");
+                            bwriter.close();
+                        } else {
+                            Log.e("FChargeToggle", "No fast charge support");
+                        }
                     }
                 } catch (IOException e) {
                     Log.e("FChargeToggle", "Couldn't write fast_charge file");

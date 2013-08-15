@@ -136,6 +136,13 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     protected FrameLayout mStatusBarContainer;
 
+    private Runnable mPanelCollapseRunnable = new Runnable() {
+        @Override
+        public void run() {
+            animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
+        }
+    };
+
     // UI-specific methods
 
     /**

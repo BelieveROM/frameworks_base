@@ -18,10 +18,12 @@ package com.android.systemui.quicksettings;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.ContentResolver;
 import android.os.Handler;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,6 +36,7 @@ import com.android.systemui.statusbar.phone.QuickSettingsController;
 public class MobileNetworkTypeTile extends QuickSettingsTile {
 
     private static final String TAG = "NetworkModeQuickSettings";
+    private final boolean DBG = false;
 
     // retrieved from Phone.apk
     private static final String ACTION_NETWORK_MODE_CHANGED = "com.android.internal.telephony.NETWORK_MODE_CHANGED";
@@ -57,11 +60,12 @@ public class MobileNetworkTypeTile extends QuickSettingsTile {
     private int mIntendedMode = NO_NETWORK_MODE_YET;
     private int mInternalState = STATE_INTERMEDIATE;
     private int mState;
-    public static QuickSettingsTile mInstance;
+    public static MobileNetworkTypeTile mInstance;
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new MobileNetworkTypeTile(context, inflater, container, qsc);
+        mInstance = null;
+        mInstance = new MobileNetworkTypeTile(context, inflater, container, qsc);
         return mInstance;
     }
 
@@ -124,7 +128,7 @@ public class MobileNetworkTypeTile extends QuickSettingsTile {
                 return true;
             }
         };
-
+        qsc.registerObservedContent(Settings.System.getUriFor(Settings.System.EXPANDED_NETWORK_MODE), this);
         qsc.registerAction(ACTION_NETWORK_MODE_CHANGED, this);
     }
 
@@ -208,7 +212,7 @@ public class MobileNetworkTypeTile extends QuickSettingsTile {
             case Phone.NT_MODE_EVDO_NO_CDMA:
             case Phone.NT_MODE_GLOBAL:
                 // need to check what is going on
-                Log.d(TAG, "Unexpected network mode (" + mMode + ")");
+                if (DBG) Log.d(TAG, "Unexpected network mode (" + mMode + ")");
                 return STATE_UNEXPECTED;
         }
         return STATE_INTERMEDIATE;
@@ -218,5 +222,11 @@ public class MobileNetworkTypeTile extends QuickSettingsTile {
         return Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.EXPANDED_NETWORK_MODE,
                 CM_MODE_3G2G);
+    }
+
+    @Override
+    public void onChangeUri(ContentResolver resolver, Uri uri) {
+        getCurrentCMMode();
+        applyNetworkTypeChanges();
     }
 }

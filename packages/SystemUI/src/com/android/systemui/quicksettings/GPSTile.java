@@ -44,8 +44,8 @@ public class GPSTile extends QuickSettingsTile implements LocationGpsStateChange
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new GPSTile(context, inflater, container, qsc);
-        else {mInstance.updateTileState();  qsc.registerAction(LocationManager.PROVIDERS_CHANGED_ACTION, mInstance);}
+        mInstance = null;
+        mInstance = new GPSTile(context, inflater, container, qsc);
         return mInstance;
     }
 
@@ -57,7 +57,6 @@ public class GPSTile extends QuickSettingsTile implements LocationGpsStateChange
         LocationController controller = new LocationController(mContext);
         controller.addStateChangedCallback(this);
 
-        
         enabled = Settings.Secure.isLocationProviderEnabled(mContentResolver, LocationManager.GPS_PROVIDER);
 
         mOnClick = new OnClickListener() {
@@ -119,8 +118,6 @@ public class GPSTile extends QuickSettingsTile implements LocationGpsStateChange
     }
 
     private void setGenericLabel() {
-        // Show OFF next to the GPS label when in OFF state, ON/IN USE is indicated by the color
-        String label = mContext.getString(R.string.quick_settings_gps);
-        mLabel = (enabled ? label : label + " " + mContext.getString(R.string.quick_settings_label_disabled));
+        mLabel = (enabled ? mContext.getString(R.string.quick_settings_gps) : mContext.getString(R.string.quick_settings_gps_off));
     }
 }

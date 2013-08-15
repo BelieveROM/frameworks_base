@@ -36,7 +36,8 @@ public class SyncTile extends QuickSettingsTile {
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new SyncTile(context, inflater, container, qsc);
+        mInstance = null;
+        mInstance = new SyncTile(context, inflater, container, qsc);
         return mInstance;
     }
 
@@ -98,14 +99,12 @@ public class SyncTile extends QuickSettingsTile {
     }
 
     private void updateTileState() {
-        // Get the initial label
-        mLabel = mContext.getString(R.string.quick_settings_sync);
-
         if (getSyncState()) {
             mDrawable = R.drawable.ic_qs_sync_on;
+            mLabel = mContext.getString(R.string.quick_settings_sync);
         } else {
             mDrawable = R.drawable.ic_qs_sync_off;
-            mLabel += " " + mContext.getString(R.string.quick_settings_label_disabled);
+            mLabel = mContext.getString(R.string.quick_settings_sync_off);
         }
     }
 

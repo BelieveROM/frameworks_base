@@ -28,6 +28,7 @@ import android.provider.Settings.SettingNotFoundException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
@@ -36,9 +37,9 @@ import android.widget.ImageView;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
-import com.android.systemui.statusbar.policy.BrightnessController;
-import com.android.systemui.statusbar.policy.BrightnessController.BrightnessStateChangeCallback;
-import com.android.systemui.statusbar.policy.ToggleSlider;
+import com.android.systemui.settings.BrightnessController;
+import com.android.systemui.settings.BrightnessController.BrightnessStateChangeCallback;
+import com.android.systemui.settings.ToggleSlider;
 
 public class BrightnessTile extends QuickSettingsTile implements BrightnessStateChangeCallback {
 
@@ -52,12 +53,8 @@ public class BrightnessTile extends QuickSettingsTile implements BrightnessState
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new BrightnessTile(context, inflater, container, qsc, handler);
-        else {
-            mInstance.onBrightnessLevelChanged();
-            qsc.registerObservedContent(Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS), mInstance);
-            qsc.registerObservedContent(Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE), mInstance);
-        }
+        mInstance = null;
+        mInstance = new BrightnessTile(context, inflater, container, qsc, handler);
         return mInstance;
     }
 
@@ -78,6 +75,15 @@ public class BrightnessTile extends QuickSettingsTile implements BrightnessState
                 showBrightnessDialog();
             }
         };
+
+        mOnLongClick = new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                startSettingsActivity(Settings.ACTION_DISPLAY_SETTINGS);
+                return true;
+            }
+        };
+
         qsc.registerObservedContent(Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS)
                 , this);
         qsc.registerObservedContent(Settings.System.getUriFor(Settings.System

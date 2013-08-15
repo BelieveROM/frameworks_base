@@ -37,7 +37,8 @@ public class WiFiDisplayTile extends QuickSettingsTile{
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new WiFiDisplayTile(context, inflater, container, qsc);
+        mInstance = null;
+        mInstance = new WiFiDisplayTile(context, inflater, container, qsc);
         return mInstance;
     }
 
@@ -46,7 +47,7 @@ public class WiFiDisplayTile extends QuickSettingsTile{
             QuickSettingsController qsc) {
         super(context, inflater, container, qsc);
 
-        onClick = new OnClickListener() {
+        mOnClick = new OnClickListener() {
 
             @Override
             public void onClick(View v) {

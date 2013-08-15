@@ -36,8 +36,8 @@ public class WifiAPTile extends QuickSettingsTile {
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new WifiAPTile(context, inflater, container, qsc);
-        else {mInstance.updateTileState(); mInstance.updateQuickSettings(); qsc.registerAction(WifiManager.WIFI_AP_STATE_CHANGED_ACTION, mInstance);}
+        mInstance = null;
+        mInstance = new WifiAPTile(context, inflater, container, qsc);
         return mInstance;
     }
 
@@ -48,7 +48,7 @@ public class WifiAPTile extends QuickSettingsTile {
         mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 
         updateTileState();
-        onClick = new View.OnClickListener() {
+        mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int state = mWifiManager.getWifiApState();
@@ -64,7 +64,7 @@ public class WifiAPTile extends QuickSettingsTile {
                 }
             }
         };
-        onLongClick = new View.OnLongClickListener() {
+        mOnLongClick = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -87,14 +87,14 @@ public class WifiAPTile extends QuickSettingsTile {
         switch (state) {
             case WifiManager.WIFI_AP_STATE_ENABLING:
             case WifiManager.WIFI_AP_STATE_ENABLED:
-                mLabel = mContext.getString(R.string.quick_settings_label_enabled);
+                mLabel = mContext.getString(R.string.quick_settings_wifiap);
                 mDrawable = R.drawable.ic_qs_wifi_ap_on;
                 break;
             case WifiManager.WIFI_AP_STATE_DISABLING:
             case WifiManager.WIFI_AP_STATE_DISABLED:
             default:
                 mDrawable = R.drawable.ic_qs_wifi_ap_off;
-                mLabel = mContext.getString(R.string.quick_settings_label_disabled);
+                mLabel = mContext.getString(R.string.quick_settings_wifiap_off);
                 break;
         }
     }

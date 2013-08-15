@@ -17,6 +17,8 @@
 package com.android.systemui.quicksettings;
 
 import android.content.Context;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +32,8 @@ public class PreferencesTile extends QuickSettingsTile{
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new PreferencesTile(context, inflater, container, qsc);
+        mInstance = null;
+        mInstance = new PreferencesTile(context, inflater, container, qsc);
         return mInstance;
     }
 
@@ -41,13 +44,24 @@ public class PreferencesTile extends QuickSettingsTile{
         mDrawable = R.drawable.ic_qs_settings;
         mLabel = mContext.getString(R.string.quick_settings_settings_label);
 
-        onClick = new View.OnClickListener() {
+        mOnClick = new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 startSettingsActivity(android.provider.Settings.ACTION_SETTINGS);
             }
         };
-    }
 
+        mOnLongClick = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent intent = new Intent();
+                intent.setComponent(new ComponentName(
+                        "com.android.settings",
+                        "com.android.settings.Settings$QuickSettingsTilesActivity"));
+                startSettingsActivity(intent);
+                return true;
+            }
+        };
+    }
 }

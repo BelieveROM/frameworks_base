@@ -18,6 +18,8 @@ package com.android.systemui.quicksettings;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.Settings;
@@ -38,8 +40,8 @@ public class AutoRotateTile extends QuickSettingsTile {
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new AutoRotateTile(context, inflater, container, qsc, handler);
-        else {mInstance.applyAutoRotationChanges(); qsc.registerObservedContent(Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION), mInstance);}
+        mInstance = null;
+        mInstance = new AutoRotateTile(context, inflater, container, qsc, handler);
         return mInstance;
     }
 
@@ -57,7 +59,11 @@ public class AutoRotateTile extends QuickSettingsTile {
         mOnLongClick = new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                startSettingsActivity(Settings.ACTION_DISPLAY_SETTINGS);
+                Intent intent = new Intent();
+                intent.setComponent(new ComponentName(
+                        "com.android.settings",
+                        "com.android.settings.Settings$ASSDisplayRotationActivity"));
+                startSettingsActivity(intent);
                 return true;
             }
         };

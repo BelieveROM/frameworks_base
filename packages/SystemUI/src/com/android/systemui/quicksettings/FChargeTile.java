@@ -39,16 +39,14 @@ import java.io.IOException;
 public class FChargeTile extends QuickSettingsTile {
 
     public static FChargeTile mInstance;
-
-    public static final String FAST_CHARGE_DIR = "/sys/kernel/fast_charge";
-    public static final String FAST_CHARGE_FILE = "force_fast_charge";
+    private final boolean DBG = false;
 
     protected boolean enabled = false;
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new FChargeTile(context, inflater, container, qsc, handler);
-        else {mInstance.updateTileState(); qsc.registerObservedContent(Settings.System.getUriFor(Settings.System.FCHARGE_ENABLED), mInstance);}
+        mInstance = null;
+        mInstance = new FChargeTile(context, inflater, container, qsc, handler);
         return mInstance;
     }
 
@@ -64,15 +62,21 @@ public class FChargeTile extends QuickSettingsTile {
             public void onClick(View v) {
                 try {
                         enabled = !isFastChargeOn();
-                        File fastcharge = new File(FAST_CHARGE_DIR, FAST_CHARGE_FILE);
-                        FileWriter fwriter = new FileWriter(fastcharge);
-                        BufferedWriter bwriter = new BufferedWriter(fwriter);
-                        bwriter.write(enabled ? "1" : "0");
-                        bwriter.close();
-                        Settings.System.putInt(mContext.getContentResolver(),
-                             Settings.System.FCHARGE_ENABLED, enabled ? 1 : 0);
+                        String fchargePath = mContext.getResources()
+                                .getString(com.android.internal.R.string.config_fastChargePath);
+                        if (!fchargePath.isEmpty()) {
+                            File fastcharge = new File(fchargePath);
+                            if (fastcharge.exists()) {
+                                FileWriter fwriter = new FileWriter(fastcharge);
+                                BufferedWriter bwriter = new BufferedWriter(fwriter);
+                                bwriter.write(enabled ? "1" : "0");
+                                bwriter.close();
+                                Settings.System.putInt(mContext.getContentResolver(),
+                                     Settings.System.FCHARGE_ENABLED, enabled ? 1 : 0);
+                            }
+                        }
                     } catch (IOException e) {
-                        Log.e("FChargeToggle", "Couldn't write fast_charge file");
+                        if (DBG) Log.e("FChargeToggle", "Couldn't write fast_charge file");
                         Settings.System.putInt(mContext.getContentResolver(),
                              Settings.System.FCHARGE_ENABLED, 0);
                     }
@@ -92,20 +96,26 @@ public class FChargeTile extends QuickSettingsTile {
 
     public boolean isFastChargeOn() {
         try {
-            File fastcharge = new File(FAST_CHARGE_DIR, FAST_CHARGE_FILE);
-            FileReader reader = new FileReader(fastcharge);
-            BufferedReader breader = new BufferedReader(reader);
-            String line = breader.readLine();
-            breader.close();
-            Settings.System.putInt(mContext.getContentResolver(),
-                    Settings.System.FCHARGE_ENABLED, line.equals("1") ? 1 : 0);
-            return (line.equals("1"));
+            String fchargePath = mContext.getResources()
+                    .getString(com.android.internal.R.string.config_fastChargePath);
+            if (!fchargePath.isEmpty()) {
+                File fastcharge = new File(fchargePath);
+                if (fastcharge.exists()) {
+                    FileReader reader = new FileReader(fastcharge);
+                    BufferedReader breader = new BufferedReader(reader);
+                    String line = breader.readLine();
+                    breader.close();
+                    Settings.System.putInt(mContext.getContentResolver(),
+                            Settings.System.FCHARGE_ENABLED, line.equals("1") ? 1 : 0);
+                    return (line.equals("1"));
+                }
+            }
         } catch (IOException e) {
-            Log.e("FChargeToggle", "Couldn't read fast_charge file");
+            if (DBG) Log.e("FChargeToggle", "Couldn't read fast_charge file");
             Settings.System.putInt(mContext.getContentResolver(),
                  Settings.System.FCHARGE_ENABLED, 0);
-            return false;
         }
+        return false;
     }
 
     private void updateTileState() {

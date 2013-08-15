@@ -19,6 +19,8 @@ package com.android.systemui.quicksettings;
 import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardLock;
 import android.content.Context;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -37,13 +39,14 @@ public class ToggleLockscreenTile extends QuickSettingsTile {
     private static final String KEY_DISABLED = "lockscreen_disabled";
 
     private final KeyguardManager mKeyguardManager;
-    private boolean mDisabledLockscreen = false;
-    private SharedPreferences sp;
+    private boolean mDisabledLockscreen;
+    private SharedPreferences mPrefs;
     public static QuickSettingsTile mInstance;
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc, Handler handler, String id) {
-        if (mInstance == null) mInstance = new ToggleLockscreenTile(context, inflater, container, qsc);
+        mInstance = null;
+        mInstance = new ToggleLockscreenTile(context, inflater, container, qsc);
         return mInstance;
     }
 
@@ -54,15 +57,16 @@ public class ToggleLockscreenTile extends QuickSettingsTile {
         mLabel = mContext.getString(R.string.quick_settings_lockscreen);
 
         mKeyguardManager = (KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE);
+        mPrefs = mContext.getSharedPreferences("PowerButton-" + PowerButton.BUTTON_LOCKSCREEN, Context.MODE_PRIVATE);
+        mDisabledLockscreen = mPrefs.getBoolean(KEY_DISABLED, false);
 
-        onClick = new OnClickListener() {
+        mOnClick = new OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 mDisabledLockscreen = !mDisabledLockscreen;
 
-                sp = mContext.getSharedPreferences("PowerButton-" + PowerButton.BUTTON_LOCKSCREEN, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sp.edit();
+                SharedPreferences.Editor editor = mPrefs.edit();
                 editor.putBoolean(KEY_DISABLED, mDisabledLockscreen);
                 editor.apply();
 
@@ -70,11 +74,15 @@ public class ToggleLockscreenTile extends QuickSettingsTile {
             }
         };
 
-        onLongClick = new OnLongClickListener() {
+        mOnLongClick = new OnLongClickListener() {
 
             @Override
             public boolean onLongClick(View v) {
-                startSettingsActivity("android.settings.SECURITY_SETTINGS");
+                Intent intent = new Intent();
+                intent.setComponent(new ComponentName(
+                        "com.android.settings",
+                        "com.android.settings.Settings$ASSLockscreenActivity"));
+                startSettingsActivity(intent);
                 return true;
             }
         };
@@ -86,11 +94,19 @@ public class ToggleLockscreenTile extends QuickSettingsTile {
         super.onPostCreate();
     }
 
+    @Override
+    public void onDestroy() {
+        if (mLock != null) {
+            mLock.reenableKeyguard();
+        }
+        super.onDestroy();
+    }
+
     void applyLockscreenChanges() {
         if (mLock == null) {
             KeyguardManager keyguardManager = (KeyguardManager)
                     mContext.getSystemService(Context.KEYGUARD_SERVICE);
-            mLock = keyguardManager.newKeyguardLock("PowerWidget");
+            mLock = keyguardManager.newKeyguardLock("LockscreenTile");
         }
         if (mDisabledLockscreen) {
             mDrawable = R.drawable.ic_qs_lock_screen_off;
