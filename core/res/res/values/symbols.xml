@@ -1360,6 +1360,8 @@
   <java-symbol type="id" name="lockPatternView" />
   <java-symbol type="id" name="forgot_password_button" />
   <java-symbol type="id" name="glow_pad_view" />
+  <java-symbol type="id" name="keyguard_glow_pad_container" />
+  <java-symbol type="id" name="keyguard_message_and_shortcuts" />
   <java-symbol type="id" name="delete_button" />
   <java-symbol type="id" name="keyguard_user_avatar" />
   <java-symbol type="id" name="keyguard_user_name" />
@@ -1377,6 +1379,7 @@
   <java-symbol type="id" name="keyguard_user_selector" />
   <java-symbol type="id" name="key_enter" />
   <java-symbol type="id" name="keyguard_selector_view_frame" />
+  <java-symbol type="id" name="shortcuts" />
   <java-symbol type="integer" name="config_carDockRotation" />
   <java-symbol type="integer" name="config_defaultUiModeType" />
   <java-symbol type="integer" name="config_uiInvertedMode" />
@@ -1391,6 +1394,7 @@
   <java-symbol type="layout" name="global_actions_item" />
   <java-symbol type="layout" name="global_actions_silent_mode" />
   <java-symbol type="layout" name="keyguard_selector_view" />
+  <java-symbol type="layout" name="keyguard_shortcuts" />
   <java-symbol type="layout" name="keyguard_pattern_view" />
   <java-symbol type="layout" name="keyguard_password_view" />
   <java-symbol type="layout" name="keyguard_pin_view" />

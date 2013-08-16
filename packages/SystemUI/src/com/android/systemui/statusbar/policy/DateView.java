@@ -18,6 +18,7 @@ package com.android.systemui.statusbar.policy;
 
 import android.app.ActivityManagerNative;
 import android.app.StatusBarManager;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -26,11 +27,15 @@ import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.provider.CalendarContract;
+import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewParent;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.systemui.R;
 
@@ -40,10 +45,10 @@ import java.util.Locale;
 
 import libcore.icu.ICU;
 
-public class DateView extends TextView implements OnClickListener {
+public class DateView extends TextView implements OnClickListener, OnLongClickListener {
     private static final String TAG = "DateView";
 
-    private View mParent;
+    private RelativeLayout mParent;
 
     private boolean mAttachedToWindow;
     private boolean mWindowVisible;
@@ -65,6 +70,7 @@ public class DateView extends TextView implements OnClickListener {
     public DateView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOnClickListener(this);
+        setOnLongClickListener(this);
     }
 
     @Override
@@ -72,25 +78,29 @@ public class DateView extends TextView implements OnClickListener {
         super.onAttachedToWindow();
         mAttachedToWindow = true;
         setUpdates();
-
-        if (mParent == null) {
-            final ViewParent parent = getParent();
-            if (parent instanceof View) {
-                mParent = (View)parent;
-                mParent.setOnClickListener(this);
-            }
-        }
     }
-    
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mAttachedToWindow = false;
         if (mParent != null) {
             mParent.setOnClickListener(null);
+            mParent.setOnLongClickListener(null);
             mParent = null;
         }
         setUpdates();
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        if (mParent == null) {
+            mParent = (RelativeLayout) getParent();
+            mParent.setOnClickListener(this);
+            mParent.setOnLongClickListener(this);
+        }
+
+        super.onDraw(canvas);
     }
 
     @Override
@@ -113,11 +123,19 @@ public class DateView extends TextView implements OnClickListener {
     }
 
     protected void updateClock() {
+        final String weekdayFormat = getContext().getString(R.string.system_ui_weekday_pattern);
         final String dateFormat = getContext().getString(R.string.system_ui_date_pattern);
         final Locale l = Locale.getDefault();
-        String fmt = ICU.getBestDateTimePattern(dateFormat, l.toString());
-        SimpleDateFormat sdf = new SimpleDateFormat(fmt, l);
-        setText(sdf.format(new Date()));
+        final Date now = new Date();
+        String weekdayFmt = ICU.getBestDateTimePattern(weekdayFormat, l.toString());
+        String dateFmt = ICU.getBestDateTimePattern(dateFormat, l.toString());
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(new SimpleDateFormat(weekdayFmt, l).format(now));
+        builder.append("\n");
+        builder.append(new SimpleDateFormat(dateFmt, l).format(now));
+
+        setText(builder.toString());
     }
 
     private boolean isVisible() {
@@ -153,33 +171,48 @@ public class DateView extends TextView implements OnClickListener {
             }
         }
     }
+
     private void collapseStartActivity(Intent what) {
-          // collapse status bar
-          StatusBarManager statusBarManager = (StatusBarManager) getContext().getSystemService(
-                  Context.STATUS_BAR_SERVICE);
-         statusBarManager.collapsePanels();
-  
-          // dismiss keyguard in case it was active and no passcode set
-          try {
-              ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
-         } catch (Exception ex) {
-              // no action needed here
-          }
-  
-          // start activity
-          what.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-          mContext.startActivity(what);
-      }
-  
-      @Override
-      public void onClick(View v) {
-          long nowMillis = System.currentTimeMillis();
-  
-          Uri.Builder builder = CalendarContract.CONTENT_URI.buildUpon();
-          builder.appendPath("time");
-          ContentUris.appendId(builder, nowMillis);
-          Intent intent = new Intent(Intent.ACTION_VIEW)
-                  .setData(builder.build());
-          collapseStartActivity(intent);
-      }
+        // collapse status bar
+        StatusBarManager statusBarManager = (StatusBarManager) getContext().getSystemService(
+                Context.STATUS_BAR_SERVICE);
+        statusBarManager.collapsePanels();
+
+        // dismiss keyguard in case it was active and no passcode set
+        try {
+            ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
+        } catch (Exception ex) {
+            // no action needed here
+        }
+
+        // start activity
+        what.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity(what);
+    }
+
+    @Override
+    public void onClick(View v) {
+        long nowMillis = System.currentTimeMillis();
+
+        try {
+            Uri.Builder builder = CalendarContract.CONTENT_URI.buildUpon();
+            builder.appendPath("time");
+            ContentUris.appendId(builder, nowMillis);
+            Intent intent = new Intent(Intent.ACTION_VIEW)
+                    .setData(builder.build());
+            collapseStartActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(mContext, R.string.calendar_error_alert, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        Intent intent = new Intent("android.settings.DATE_SETTINGS");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        collapseStartActivity(intent);
+
+        // consume event
+        return true;
+    }
 }
