@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.android.internal.policy.impl.keyguard;
 
 import android.content.Context;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.TextView;
@@ -74,10 +75,16 @@ public class CarrierText extends TextView {
 
     protected void updateCarrierText(State simState, CharSequence plmn, CharSequence spn) {
         CharSequence text = getCarrierTextForSimState(simState, plmn, spn);
-        if (KeyguardViewManager.USE_UPPER_CASE) {
-            setText(text != null ? text.toString().toUpperCase() : null);
+        String customLabel = Settings.System.getString(getContext().getContentResolver(),
+                Settings.System.CUSTOM_CARRIER_LABEL);
+        if (customLabel == null || customLabel.length() == 0) {
+            if (KeyguardViewManager.USE_UPPER_CASE) {
+                setText(text != null ? text.toString().toUpperCase() : null);
+            } else {
+                setText(text);
+            }
         } else {
-            setText(text);
+            setText(customLabel);
         }
     }
 
@@ -256,3 +263,4 @@ public class CarrierText extends TextView {
         return mContext.getText(carrierHelpTextId);
     }
 }
+

@@ -39,10 +39,6 @@ public class QuickSettingsTileView extends FrameLayout {
     public QuickSettingsTileView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-    if (context.getResources().getConfiguration().uiInvertedMode == 2) { // UI_INVERTED_MODE_YES
-            setBackground(null);
-        }
-
         mColSpan = 1;
         mRowSpan = 1;
 
@@ -93,5 +89,4 @@ public class QuickSettingsTileView extends FrameLayout {
         }
         super.setVisibility(vis);
     }
-
 }

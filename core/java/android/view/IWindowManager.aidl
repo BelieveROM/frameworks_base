@@ -16,10 +16,10 @@
 
 package android.view;
 
+import android.content.Intent;
 import com.android.internal.view.IInputContext;
 import com.android.internal.view.IInputMethodClient;
 
-import android.content.Intent;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -81,7 +81,7 @@ interface IWindowManager
     void setEventDispatching(boolean enabled);
     void addWindowToken(IBinder token, int type);
     void removeWindowToken(IBinder token);
-    void addAppToken(int addPos, IApplicationToken token,
+    void addAppToken(int addPos, int userId, IApplicationToken token,
             int groupId, int requestedOrientation, boolean fullscreen, boolean showWhenLocked);
     void setAppGroupId(IBinder token, int groupId);
     void setAppOrientation(IApplicationToken token, int requestedOrientation);
@@ -261,13 +261,12 @@ interface IWindowManager
      */
     void showAssistant();
 
-   /**
+    /**
      * Tell keyguard to show a custom intent after asking for the user's
      * credentials.
      * @hide
      */
     void showCustomIntent(inout Intent intent);
-
 
     /**
      * Sets the display magnification callbacks. These callbacks notify
@@ -294,4 +293,9 @@ interface IWindowManager
      * @return The magnification spec if such or null.
      */
     MagnificationSpec getCompatibleMagnificationSpecForWindow(in IBinder windowToken);
-}
+
+    /**
+     * Update the application display metrics
+     */
+    void updateDisplayMetrics();
+ }

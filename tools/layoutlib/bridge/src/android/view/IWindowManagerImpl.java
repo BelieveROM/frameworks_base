@@ -492,8 +492,6 @@ public class IWindowManagerImpl implements IWindowManager {
     @Override
     public void showCustomIntent(Intent intent) {
 
-    }
-
     @Override
     public void updateDisplayMetrics() {
 

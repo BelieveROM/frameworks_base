@@ -281,7 +281,7 @@
     <!-- Title for the Phone Options dialog to lock the screen, turn off the phone etc. -->
     <string name="power_dialog" product="tablet">Tablet options</string>
     <!-- Title for the Phone Options dialog to lock the screen, turn off the phone etc. -->
-    <string name="power_dialog" product="default">Phone options</string>
+    <string name="power_dialog" product="default">Believe options</string>
     <!-- Button to turn on silent mode, within the Phone Options dialog -->
     <string name="silent_mode">Silent mode</string>
     <!-- Button to turn on the radio, within the Phone Options dialog -->
@@ -294,8 +294,8 @@
     <string name="power_off">Power off</string>
 
     <!-- Button to reboot the phone, within the Phone Options dialog -->
-    <string name="reboot_system" product="tablet">Reboot tablet</string>
-    <string name="reboot_system" product="default">Reboot phone</string>
+    <string name="reboot_system" product="tablet">Reboot Believe</string>
+    <string name="reboot_system" product="default">Reboot Believe</string>
     <!-- Reboot Progress Dialog. This is shown if the user chooses to reboot the phone. -->
     
     <!-- label for item that screenshots in phone options dialog -->
@@ -4156,4 +4156,17 @@
     <!-- Message informing user that the requested activity could not be found [CHAR LIMIT=none] -->
     <string name="app_not_found">No application found to handle this action</string>
     <string name="revoke">Revoke</string>
+
+    <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, there will
+         be a confirmation dialog.  This is the message. -->
+    <string name="shutdown_confirm_reboot" product="tablet">Your tablet will reboot now.</string>
+    <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, there will
+         be a confirmation dialog.  This is the message. -->
+    <string name="shutdown_confirm_reboot" product="default">Your phone will reboot now.</string>
+
+     <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, it asks
+         the user if they'd like to reboot.  This is the message.  This is used instead of
+         shutdown_confirm_reboot when the system is configured to use long press to go directly to the
+         reboot dialog instead of the global actions menu. -->
+    <string name="shutdown_confirm_reboot_question">Do you want to reboot?</string>
 </resources>

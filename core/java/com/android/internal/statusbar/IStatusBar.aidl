@@ -39,6 +39,7 @@ oneway interface IStatusBar
     void setAutoRotate(boolean enabled);
     void toggleNotificationShade();
     void toggleQSShade();
+    void toggleStatusBar(boolean enable);
     void toggleWidgets();
     void toggleScreenshot();
     void toggleLastApp();

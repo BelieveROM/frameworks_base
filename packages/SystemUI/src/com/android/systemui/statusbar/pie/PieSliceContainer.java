@@ -39,9 +39,10 @@ public class PieSliceContainer extends PieLayout.PieSlice {
     }
 
     @Override
-    public void prepare(Position position, float scale) {
+    public void prepare(Position position, float scale, boolean mirrorRightPie) {
         if (hasItems()) {
             int totalWidth = 0;
+            boolean topRight = false;
             for (PieItem item : mItems) {
                 if ((item.flags & PieDrawable.VISIBLE) != 0) {
                     totalWidth += item.width;
@@ -55,14 +56,19 @@ public class PieSliceContainer extends PieLayout.PieSlice {
 
             float gapMinder = ((totalWidth * GAP * 2.0f) / (mOuter + mInner));
             float deltaSweep = mSweep / totalWidth;
-            int width = position != Position.TOP ? 0 : totalWidth;
+            if (mirrorRightPie) {
+                // check if it is top or right trigger to mirror later the items correct
+                topRight = (position == Position.TOP) || (position == Position.RIGHT);
+            } else {
+                topRight = (position == Position.TOP);
+            }
+            int width = topRight ? totalWidth : 0;
 
             int viewMask = PieDrawable.VISIBLE | position.FLAG;
 
-            boolean top = position == Position.TOP;
             for (PieItem item : mItems) {
                 if ((item.flags & viewMask) == viewMask) {
-                    if (top) width -= item.width;
+                    if (topRight) width -= item.width;
 
                     item.setGeometry(mStart + deltaSweep * width,
                             item.width * deltaSweep, mInner, mOuter);
@@ -74,7 +80,7 @@ public class PieSliceContainer extends PieLayout.PieSlice {
                                 + (item.width * deltaSweep) + ")");
                     }
 
-                    if (!top) width += item.width;
+                    if (!topRight) width += item.width;
                 }
             }
         }

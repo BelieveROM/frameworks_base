@@ -948,9 +948,6 @@
          This is intended to allow packaging drivers or tools for installation on a PC. -->
     <string translatable="false" name="config_isoImagePath"></string>
 
-    <!-- Whether a software navigation bar should be shown. NOTE: in the future this may be
-         autodetected from the Configuration. -->
-    <bool name="config_showNavigationBar">false</bool>
 
     <!-- Whether action menu items should be displayed in ALLCAPS or not.
          Defaults to true. If this is not appropriate for specific locales
@@ -1104,13 +1101,6 @@
     <!-- True will enable the electron beam screen-off animation. -->
     <bool name="config_screenOffAnimation">true</bool>
 
-    <!-- Timeout in MS for how long you have to long-press the back key to
-         kill the foreground app. -->
-    <integer name="config_backKillTimeout">2000</integer>
-
-    <!-- Device has a h/w rotation lock switch -->
-    <bool name="config_hasRotationLockSwitch">false</bool>
-
     <!-- Boolean to enable stk functionality on Samsung phones -->
     <bool name="config_samsung_stk">false</bool>
 
@@ -1174,9 +1164,7 @@
         <item>100</item>
     </integer-array>
 
-    <!-- Flag indicating if the speed up audio on mt call code should be executed -->
-    <bool name="config_speed_up_audio_on_mt_calls">false</bool>
-
+   
     <!-- Class name of the framework account picker activity.
          Can be customized for other product types -->
     <string name="config_chooseAccountActivity"
@@ -1216,12 +1204,18 @@
     <!-- Device has a h/w rotation lock switch -->
     <bool name="config_hasRotationLockSwitch">false</bool>
 
-    <!-- Disable the home key unlock setting --> 
-    <bool name="config_disableHomeUnlockSetting">true</bool> 
-
+      
     <!-- empty string to disable, or eg: /sys/kernel/fast_charge/force_fast_charge
          for a custom path the delivered kernel supports.
          it is disabled by default so devices need to add an overlay to enable -->
     <string name="config_fastChargePath" translatable="false"></string>
+
+     <!-- Boolean to enable/disable SlimPIE
+        default is enabled -->
+    <bool name="config_slimPie">true</bool>
+
+     <!-- Whether a software navigation bar should be shown. NOTE: in the future this may be
+         autodetected from the Configuration. -->
+    <bool name="config_showNavigationBar">false</bool>
 
 </resources>

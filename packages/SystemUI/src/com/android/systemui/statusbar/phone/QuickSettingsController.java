@@ -394,7 +394,7 @@ public class QuickSettingsController {
         return (cm.getTetherableUsbRegexs().length != 0);
     }
 
-   
+  
     void setBar(PanelBar bar) {
         mBar = bar;
     }

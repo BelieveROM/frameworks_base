@@ -92,7 +92,7 @@ public class PieSysInfo extends PieSliceContainer implements ValueAnimator.Anima
     }
 
     @Override
-    public void prepare(Position position, float scale) {
+    public void prepare(Position position, float scale, boolean mirrorRightPie) {
 
         // We are updating data later when we starting to get visible.
         // This does not save work on the main thread, but for fast gestures
@@ -204,15 +204,7 @@ public class PieSysInfo extends PieSliceContainer implements ValueAnimator.Anima
     }
 
     private SimpleDateFormat getTimeFormat() {
-        int formatResId;
-
-        if (DateFormat.is24HourFormat(mContext)) {
-            formatResId = com.android.internal.R.string.twenty_four_hour_time_format;
-        } else {
-            formatResId = com.android.internal.R.string.twelve_hour_time_format;
-        }
-
-        String format = mContext.getString(formatResId);
+        String format = DateFormat.getTimeFormatString(mContext);
         if (format.equals(mTimeFormatString)) {
             return mTimeFormat;
         }

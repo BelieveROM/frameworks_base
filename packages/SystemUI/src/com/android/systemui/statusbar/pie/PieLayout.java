@@ -16,11 +16,9 @@
 package com.android.systemui.statusbar.pie;
 
 import android.animation.ValueAnimator;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.database.ContentObserver;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -61,6 +59,12 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
     private static final int TIME_FADEIN = 600;
     private static final int TIME_FADEIN_DELAY = 1000;
 
+    // default value, must fit with PieStyleSettings.java in settings
+    public static final float PIE_CONTROL_SIZE_DEFAULT = 1.0f;
+    // default icon start factor when icon should start to resize
+    // related to PIE_SIZE value
+    public static final float PIE_ICON_START_SIZE_FACTOR = 0.95f;
+
     private Paint mBackgroundPaint = new Paint();
     private float mBackgroundFraction;
     private int mBackgroundTargetAlpha;
@@ -73,7 +77,8 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
     private float mSnapThreshold;
     private float mSnapThresholdSqr;
 
-    private float mPieScale = 1.0f;
+    private float mPieScale;
+    private boolean mMirrorRightPie = true;
     private int mPadding;
 
     private boolean mActive = false;
@@ -81,11 +86,6 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
     private Point mCenter = new Point(0, 0);
     private Position mPosition = Position.LEFT;
     private Position mLayoutDoneForPosition;
-    private int mPieTriggerMask;
-    private final static int DEFAULT_MASK = Position.LEFT.FLAG
-                | Position.BOTTOM.FLAG
-                | Position.RIGHT.FLAG
-                | Position.TOP.FLAG;
 
     private Handler mHandler;
     private Runnable mLongPressRunnable = new Runnable() {
@@ -137,7 +137,7 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
         protected int mInner;
         protected int mOuter;
 
-        abstract public void prepare(Position position, float scale);
+        abstract public void prepare(Position position, float scale, boolean mirrorRightPie);
 
         abstract public void draw(Canvas canvas, Position position);
 
@@ -195,8 +195,8 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
     private boolean mLongPressed = false;
 
     private class SnapPoint {
-        private final int mX;
-        private final int mY;
+        private int mX;
+        private int mY;
         private float mActivity;
 
         public SnapPoint(int x, int y, Position gravity) {
@@ -204,6 +204,11 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
             mY = y;
             mActivity = 0.0f;
             this.position = gravity;
+        }
+
+        public void reposition(int x, int y) {
+            mX = x;
+            mY = y;
         }
 
         public void reset() {
@@ -242,7 +247,7 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
         public final Position position;
     }
 
-    private int mTriggerSlots;
+    private int mSnapPointMask = 0;
     private SnapPoint[] mSnapPoints = new SnapPoint[Position.values().length];
     private SnapPoint mActiveSnap = null;
 
@@ -254,43 +259,6 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
     }
     private OnSnapListener mOnSnapListener = null;
 
-    private final class SettingsObserver extends ContentObserver {
-        SettingsObserver(Handler handler) {
-            super(handler);
-        }
-
-        void observe() {
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_SIZE), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_GRAVITY), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_TRIGGER_MASK), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_SHOW_BACKGROUND), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_BACKGROUND_COLOR), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_BACKGROUND_ALPHA), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_SNAP_COLOR), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_SHOW_SNAP), false, this);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            mShowBackground = Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.PIE_SHOW_BACKGROUND, 1) == 1;
-
-            getDimensions();
-            getColors();
-            setupSnapPoints(getWidth(), getHeight(), true);
-        }
-    }
-    private SettingsObserver mSettingsObserver;
-
     public PieLayout(Context context) {
         super(context);
 
@@ -299,14 +267,13 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
 
         setDrawingCacheEnabled(false);
         setVisibility(View.GONE);
+        setWillNotDraw(false);
+        setFocusable(true);
+        setOnTouchListener(this);
 
         getDimensions();
         getColors();
 
-        mTriggerSlots = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.PIE_GRAVITY, Position.LEFT.FLAG);
-        mPieTriggerMask = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.PIE_TRIGGER_MASK, DEFAULT_MASK);
         mShowBackground = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.PIE_SHOW_BACKGROUND, 1) == 1;
     }
@@ -315,9 +282,19 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
         mOnSnapListener = onSnapListener;
     }
 
+    /**
+     * Tells the Layout where to show snap points.
+     * @param mask is a mask that corresponds to {@link Position}{@code .FLAG}.
+     */
+    public void setSnapPoints(int mask) {
+        mSnapPointMask = mask;
+    }
+
     private void getDimensions() {
         mPieScale = Settings.System.getFloat(mContext.getContentResolver(),
-                Settings.System.PIE_SIZE, 1.1f);
+                Settings.System.PIE_SIZE, PIE_CONTROL_SIZE_DEFAULT);
+        mMirrorRightPie = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PIE_MIRROR_RIGHT, 1) == 1;
 
         final Resources res = mContext.getResources();
 
@@ -356,7 +333,7 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
         mBackgroundTargetAlpha = (int) ((1-backgroundAlpha) * 255);
     }
 
-    private void setupSnapPoints(int width, int height, boolean force) {
+    private void setupSnapPoints(int width, int height) {
         if (Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.PIE_SHOW_SNAP, 1) == 0) {
             mActiveSnap = null;
@@ -365,39 +342,27 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
             }
             return;
         }
-        if (force) {
-            mTriggerSlots = Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.PIE_GRAVITY, Position.LEFT.FLAG);
-            mPieTriggerMask = Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.PIE_TRIGGER_MASK, DEFAULT_MASK);
-        }
 
         mActiveSnap = null;
+        // reuse already created snap points
         for (Position g : Position.values()) {
-            if ((mPieTriggerMask & g.FLAG) != 0) {
-                if ((mTriggerSlots & g.FLAG) == 0) {
-                    if (g == Position.LEFT || g == Position.RIGHT) {
-                        mSnapPoints[g.INDEX] = new SnapPoint(g.FACTOR * width, height / 2, g);
-                    } else {
-                        mSnapPoints[g.INDEX] = new SnapPoint(width / 2, g.FACTOR * height, g);
-                    }
+            if ((mSnapPointMask & g.FLAG) != 0) {
+                int x = width / 2;
+                int y = height / 2;
+                if (g == Position.LEFT || g == Position.RIGHT) {
+                    x = g.FACTOR * width;
                 } else {
-                    mSnapPoints[g.INDEX] = null;
+                    y = g.FACTOR * height;
+                }
+                if (mSnapPoints[g.INDEX] != null) {
+                    mSnapPoints[g.INDEX].reposition(x, y);
+                } else {
+                    mSnapPoints[g.INDEX] = new SnapPoint(x, y, g);
                 }
             } else {
                 mSnapPoints[g.INDEX] = null;
             }
         }
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        setWillNotDraw(false);
-        setFocusable(true);
-        setOnTouchListener(this);
-
-        mSettingsObserver = new SettingsObserver(new Handler());
-        mSettingsObserver.observe();
     }
 
     @Override
@@ -565,16 +530,14 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
         }
 
         int viewMask = PieDrawable.VISIBLE | mPosition.FLAG;
-        if (changed) {
-            setupSnapPoints(right - left, bottom - top, false);
-        }
+        setupSnapPoints(right - left, bottom - top);
 
         // we are only doing this, when the layout changed or
         // our position changed
         if (changed || mPosition != mLayoutDoneForPosition) {
             mDrawableCache.clear();
             for (PieSlice slice : mSlices) {
-                slice.prepare(mPosition, mPieScale);
+                slice.prepare(mPosition, mPieScale, mMirrorRightPie);
                 if ((slice.flags & viewMask) == viewMask) {
                     mDrawableCache.add(slice);
                     // This is not nice, but it will help to keep the PieSlice abstract
@@ -582,7 +545,7 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
                     if (slice instanceof PieSliceContainer) {
                         for (PieItem item : ((PieSliceContainer)slice).getItems()) {
                             if ((item.flags & viewMask) == viewMask) {
-                                item.prepare(mPosition, mPieScale);
+                                item.prepare(mPosition, mPieScale, mMirrorRightPie);
                                 mDrawableCache.add(item);
                             }
                         }
@@ -599,6 +562,7 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
                 estimatedWidth = Math.max(estimatedWidth, slice.estimateWidth());
             }
         }
+        estimatedWidth = estimatedWidth  * mPieScale;
 
         if (mPosition == Position.LEFT || mPosition == Position.RIGHT) {
             mCenter.x = mPadding + (int) ((getWidth() - 2 * mPadding) * mPosition.FACTOR);
@@ -639,6 +603,11 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
 
         mActivateStartDebug = SystemClock.uptimeMillis();
 
+        mShowBackground = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PIE_SHOW_BACKGROUND, 1) == 1;
+        getDimensions();
+        getColors();
+
         mPosition = position;
         mLayoutDoneForPosition = null;
         mActive = true;
@@ -659,7 +628,6 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
         mBackgroundAnimator.start();
 
         setVisibility(View.VISIBLE);
-
 
         Slog.d(TAG, "activate finished within "
                 + (SystemClock.uptimeMillis() - mActivateStartDebug) + " ms");

@@ -42,9 +42,11 @@ public class KeyguardSecurityModel {
     private Context mContext;
     private LockPatternUtils mLockPatternUtils;
 
+    
     KeyguardSecurityModel(Context context) {
         mContext = context;
         mLockPatternUtils = new LockPatternUtils(context);
+        
     }
 
     void setLockPatternUtils(LockPatternUtils utils) {
@@ -82,18 +84,21 @@ public class KeyguardSecurityModel {
         } else if (simState == IccCardConstants.State.PUK_REQUIRED
                 && mLockPatternUtils.isPukUnlockScreenEnable()) {
             mode = SecurityMode.SimPuk;
-        } else {
+         
             final int security = mLockPatternUtils.getKeyguardStoredPasswordQuality();
             switch (security) {
                 case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC:
-                    mode = mLockPatternUtils.isLockPasswordEnabled() ?
-                            SecurityMode.PIN : SecurityMode.None;
+                    if (mLockPatternUtils.isLockPasswordEnabled()) {
+                        mode = SecurityMode.PIN;
+                    }
                     break;
+
                 case DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC:
                 case DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC:
                 case DevicePolicyManager.PASSWORD_QUALITY_COMPLEX:
-                    mode = mLockPatternUtils.isLockPasswordEnabled() ?
-                            SecurityMode.Password : SecurityMode.None;
+                    if (mLockPatternUtils.isLockPasswordEnabled()) {
+                        mode = SecurityMode.Password;
+                    }
                     break;
 
                 case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
@@ -105,7 +110,7 @@ public class KeyguardSecurityModel {
                     break;
 
                 default:
-                    throw new IllegalStateException("Unknown unlock mode:" + mode);
+                    throw new IllegalStateException("Unknown unlock mode:" + security);
             }
         }
         return mode;

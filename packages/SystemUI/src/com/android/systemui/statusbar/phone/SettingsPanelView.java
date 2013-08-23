@@ -27,8 +27,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.View;
-
 
 import com.android.systemui.EventLogTags;
 import com.android.systemui.R;
@@ -62,6 +60,9 @@ public class SettingsPanelView extends PanelView {
         mHandleBar = resources.getDrawable(R.drawable.status_bar_close);
         mHandleBarHeight = resources.getDimensionPixelSize(R.dimen.close_handle_height);
         mHandleView = findViewById(R.id.handle);
+
+        setContentDescription(resources.getString(R.string.accessibility_desc_quick_settings));
+
     }
 
     public void setQuickSettings(QuickSettingsController qs) {
@@ -83,7 +84,6 @@ public class SettingsPanelView extends PanelView {
         }
     }
 
-   
     @Override
     public void fling(float vel, boolean always) {
         GestureRecorder gr = ((PhoneStatusBarView) mBar).mBar.getGestureRecorder();
@@ -143,5 +143,4 @@ public class SettingsPanelView extends PanelView {
         }
         return super.onTouchEvent(event);
     }
-
 }

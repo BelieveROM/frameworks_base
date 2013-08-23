@@ -66,7 +66,6 @@ public class CommandQueue extends IStatusBar.Stub {
     private static final int MSG_SET_IME_STATUS             = 24 << MSG_SHIFT;
     private static final int MSG_SET_AUTOROTATE_STATUS      = 25 << MSG_SHIFT;
 
-
     public static final int FLAG_EXCLUDE_NONE = 0;
     public static final int FLAG_EXCLUDE_SEARCH_PANEL = 1 << 0;
     public static final int FLAG_EXCLUDE_RECENTS_PANEL = 1 << 1;
@@ -107,6 +106,7 @@ public class CommandQueue extends IStatusBar.Stub {
         public void setAutoRotate(boolean enabled);
         public void toggleNotificationShade();
         public void toggleQSShade();
+        public void toggleStatusBar(boolean enable);
         public void toggleRecentApps();
         public void toggleWidgets();
         public void toggleScreenshot();
@@ -237,7 +237,6 @@ public class CommandQueue extends IStatusBar.Stub {
         }
     }
 
-
     public void toggleStatusBar(boolean enable) {
         synchronized (mList) {
             mHandler.removeMessages(MSG_TOGGLE_STATUS_BAR);
@@ -261,7 +260,6 @@ public class CommandQueue extends IStatusBar.Stub {
                 enabled ? 1 : 0, 0, null).sendToTarget();
         }
     }
-
 
     public void toggleRecentApps() {
         synchronized (mList) {
@@ -398,6 +396,9 @@ public class CommandQueue extends IStatusBar.Stub {
                     break;
                 case MSG_TOGGLE_QS_SHADE:
                     mCallbacks.toggleQSShade();
+                    break;
+                case MSG_TOGGLE_STATUS_BAR:
+                    mCallbacks.toggleStatusBar(msg.arg1 != 0);
                     break;
                 case MSG_TOGGLE_WIDGETS:
                     mCallbacks.toggleWidgets();

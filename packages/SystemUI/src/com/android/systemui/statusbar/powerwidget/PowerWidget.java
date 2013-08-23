@@ -208,10 +208,7 @@ public class PowerWidget extends FrameLayout {
         if (buttons == null) {
             Log.i(TAG, "Default buttons being loaded");
             buttons = BUTTONS_DEFAULT;
-            // Add the WiMAX button if it's supported
-          //  if (WimaxHelper.isWimaxSupported(mContext)) {
-         //       buttons += BUTTON_DELIMITER + PowerButton.BUTTON_WIMAX;
-        //    }
+           
         }
         Log.i(TAG, "Button list: " + buttons);
 

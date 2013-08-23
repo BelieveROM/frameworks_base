@@ -129,13 +129,14 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     private boolean mPieShowTrigger = false;
     private boolean mDisableTriggers = false;
-    private float mPieTriggerSize;
+    private float mPieTriggerThickness;
+    private float mPieTriggerHeight;
+    private int mPieTriggerGravityLeftRight;
 
     private boolean mPieImeIsShowing = false;
 
     private final Object mScreenshotLock = new Object();
     private ServiceConnection mScreenshotConnection = null;
-
 
     // Should match the value in PhoneWindowManager
     public static final String SYSTEM_DIALOG_REASON_RECENT_APPS = "recentapps";
@@ -167,10 +168,6 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     protected int mCurrentUserId = 0;
 
-
-    protected int mLayoutDirection;
-    private Locale mLocale;
-
     protected FrameLayout mStatusBarContainer;
 
     private Runnable mPanelCollapseRunnable = new Runnable() {
@@ -179,13 +176,6 @@ public abstract class BaseStatusBar extends SystemUI implements
             animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
         }
     };
-
-    private Runnable mPanelCollapseRunnable = new Runnable() {
-        @Override
-        public void run() {
-            animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
-        }
-
 
     /**
      * An interface for navigation key bars to allow status bars to signal which keys are
@@ -262,6 +252,8 @@ public abstract class BaseStatusBar extends SystemUI implements
                                         + event.getAxisValue(MotionEvent.AXIS_Y) + ") with position: "
                                         + tracker.position.name());
                             }
+                            // set the snap points depending on current trigger and mask
+                            mPieContainer.setSnapPoints(mPieTriggerMask & ~mPieTriggerSlots);
                             // send the activation to the controller
                             mPieController.activateFromTrigger(v, event, tracker.position);
                             // forward a spoofed ACTION_DOWN event
@@ -295,6 +287,9 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     };
 
+    protected int mLayoutDirection;
+    private Locale mLocale;
+
     // UI-specific methods
 
     /**
@@ -310,8 +305,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected Display mDisplay;
 
     private boolean mDeviceProvisioned = false;
-
-    private boolean mShowNotificationCounts;
 
     public IStatusBarService getStatusBarService() {
         return mBarService;
@@ -330,6 +323,15 @@ public abstract class BaseStatusBar extends SystemUI implements
                 mDeviceProvisioned = provisioned;
                 updateNotificationIcons();
             }
+        }
+    };
+        //0: normal; 1: never expand; 2: always expand; 3: revert to old
+        int notificationsBehaviour = 0;
+        private ContentObserver SettingsObserver = new ContentObserver(new Handler()) {
+        @Override
+        public void onChange(boolean selfChange) {
+            notificationsBehaviour = Settings.System.getInt(
+                    mContext.getContentResolver(), Settings.System.NOTIFICATIONS_BEHAVIOUR, 0);
         }
     };
 
@@ -371,21 +373,21 @@ public abstract class BaseStatusBar extends SystemUI implements
         mDisplay = mWindowManager.getDefaultDisplay();
 
         mProvisioningObserver.onChange(false); // set up
+        SettingsObserver.onChange(false);
         mContext.getContentResolver().registerContentObserver(
                 Settings.Global.getUriFor(Settings.Global.DEVICE_PROVISIONED), true,
                 mProvisioningObserver);
+        mContext.getContentResolver().registerContentObserver(
+                Settings.System.getUriFor(Settings.System.NOTIFICATIONS_BEHAVIOUR), true,
+                SettingsObserver);
 
         mBarService = IStatusBarService.Stub.asInterface(
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));
 
-
-        mShowNotificationCounts = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.STATUS_BAR_NOTIF_COUNT, 0) == 1;
+        mStatusBarContainer = new FrameLayout(mContext);
 
         mLocale = mContext.getResources().getConfiguration().locale;
         mLayoutDirection = TextUtils.getLayoutDirectionFromLocale(mLocale);
-
-        mStatusBarContainer = new FrameLayout(mContext);
 
         // Connect in to the status bar manager service
         StatusBarIconList iconList = new StatusBarIconList();
@@ -474,7 +476,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         // should be overridden
     }
 
-   
     public boolean notificationIsForCurrentUser(StatusBarNotification n) {
         final int thisUserId = mCurrentUserId;
         final int notificationUserId = n.getUserId();
@@ -494,6 +495,9 @@ public abstract class BaseStatusBar extends SystemUI implements
             mLayoutDirection = TextUtils.getLayoutDirectionFromLocale(mLocale);
             refreshLayout(mLayoutDirection);
         }
+
+        if (DEBUG) Slog.d(TAG, "Configuration changed! Update pie triggers");
+        attachPie();
     }
 
     protected View updateNotificationVetoButton(View row, StatusBarNotification n) {
@@ -669,8 +673,18 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         // Provide SearchPanel with a temporary parent to allow layout params to work.
         LinearLayout tmpRoot = new LinearLayout(mContext);
-        mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
-                 R.layout.status_bar_search_panel, tmpRoot, false);
+
+         boolean navbarCanMove = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_CAN_MOVE, 1) == 1;
+
+         if (screenLayout() != Configuration.SCREENLAYOUT_SIZE_LARGE && !isScreenPortrait() && !navbarCanMove) {
+                mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
+                         R.layout.status_bar_search_panel_real_landscape, tmpRoot, false);
+         } else {
+                mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
+                         R.layout.status_bar_search_panel, tmpRoot, false);
+         }
+
         mSearchPanelView.setOnTouchListener(
                  new TouchOutsideListener(MSG_CLOSE_SEARCH_PANEL, mSearchPanelView));
         mSearchPanelView.setVisibility(View.GONE);
@@ -686,6 +700,16 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     protected H createHandler() {
          return new H();
+    }
+
+    static int screenLayout() {
+        final int screenSize = Resources.getSystem().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK;
+        return screenSize;
+    }
+
+    protected boolean isScreenPortrait() {
+        return mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 
     static void sendCloseSystemWindows(Context context, String reason) {
@@ -880,7 +904,17 @@ public abstract class BaseStatusBar extends SystemUI implements
             switch (m.what) {
              case MSG_TOGGLE_RECENTS_PANEL:
                  if (DEBUG) Slog.d(TAG, "toggle recents panel");
-                 toggleRecentsActivity();
+                // additional optimization when we get an outside call
+                // for recents app switcher - start loading the recent
+                // tasks first before toggle the recentsactvity
+                 Timer timer = new Timer();
+                 preloadRecentTasksList();
+                 timer.schedule( new TimerTask(){
+                     public void run() {
+                         cancelPreloadingRecentTasksList();
+                         toggleRecentsActivity();
+                     }
+                 }, 50);
                  break;
              case MSG_CLOSE_RECENTS_PANEL:
                  if (DEBUG) Slog.d(TAG, "closing recents panel");
@@ -1035,7 +1069,7 @@ public abstract class BaseStatusBar extends SystemUI implements
             params.maxHeight = minHeight;
             adaptive.addView(expandedOneU, params);
         }
-        if (expandedLarge != null) {
+        if (expandedLarge != null && notificationsBehaviour != 3) {
             SizeAdaptiveLayout.LayoutParams params =
                     new SizeAdaptiveLayout.LayoutParams(expandedLarge.getLayoutParams());
             params.minHeight = minHeight+1;
@@ -1058,8 +1092,9 @@ public abstract class BaseStatusBar extends SystemUI implements
         entry.row = row;
         entry.content = content;
         entry.expanded = expandedOneU;
-        entry.setLargeView(expandedLarge);
-
+        if (notificationsBehaviour != 3) {
+            entry.setLargeView(expandedLarge);
+        }
         return true;
     }
 
@@ -1221,10 +1256,10 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
 
     protected boolean expandView(NotificationData.Entry entry, boolean expand) {
-        int rowHeight =
-                mContext.getResources().getDimensionPixelSize(R.dimen.notification_row_min_height);
+        int rowHeight = mContext.getResources().getDimensionPixelSize(R.dimen.notification_row_min_height);
         ViewGroup.LayoutParams lp = entry.row.getLayoutParams();
-        if (entry.expandable() && expand) {
+        if (entry.expandable() && notificationsBehaviour != 3 && notificationsBehaviour != 1
+                && (expand || notificationsBehaviour == 2)) {
             if (DEBUG) Slog.d(TAG, "setting expanded row height to WRAP_CONTENT");
             lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         } else {
@@ -1453,14 +1488,6 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     // Pie Controls
 
-    @Override
-    protected void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        if (DEBUG) Slog.d(TAG, "Configuration changed! Update pie triggers");
-        attachPie();
-    }
-
     private final class PieSettingsObserver extends ContentObserver {
         PieSettingsObserver(Handler handler) {
             super(handler);
@@ -1473,7 +1500,11 @@ public abstract class BaseStatusBar extends SystemUI implements
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_GRAVITY), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_TRIGGER_SIZE), false, this);
+                    Settings.System.PIE_TRIGGER_GRAVITY_LEFT_RIGHT), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PIE_TRIGGER_THICKNESS), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PIE_TRIGGER_HEIGHT), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_TRIGGER_SHOW), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
@@ -1487,6 +1518,12 @@ public abstract class BaseStatusBar extends SystemUI implements
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_CAN_MOVE), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_HEIGHT), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_WIDTH), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.HIDE_STATUSBAR), false, this);
         }
 
@@ -1496,10 +1533,6 @@ public abstract class BaseStatusBar extends SystemUI implements
                     Settings.System.PIE_GRAVITY, Position.LEFT.FLAG);
             mPieShowTrigger = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.PIE_TRIGGER_SHOW, 0) == 1;
-            mPieTriggerSize = Settings.System.getFloat(mContext.getContentResolver(),
-                    Settings.System.PIE_TRIGGER_SIZE,
-                    mContext.getResources().getDimension(R.dimen.pie_trigger_height));
-            mPieImeIsShowing = Settings.System.getFloat(mContext.getContentResolver(),
             mPieTriggerThickness = Settings.System.getFloat(mContext.getContentResolver(),
                     Settings.System.PIE_TRIGGER_THICKNESS,
                     mContext.getResources().getDimension(R.dimen.pie_trigger_thickness));
@@ -1528,7 +1561,6 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     private void attachPie() {
         if (isPieEnabled()) {
-            setupTriggers(false);
             // Create our container, if it does not exist already
             if (mPieContainer == null) {
                 mPieContainer = new PieLayout(mContext);
@@ -1548,16 +1580,23 @@ public abstract class BaseStatusBar extends SystemUI implements
                 lp.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND;
 
                 mWindowManager.addView(mPieContainer, lp);
-                mPieController.attachTo(mPieContainer);
+                // once we need a pie controller, we create one and keep it forever ...
+                if (mPieController == null) {
+                    mPieController = new PieController(mContext);
+                    mPieController.attachStatusBar(this);
+                    addNavigationBarCallback(mPieController);
+                }
+                mPieController.attachContainer(mPieContainer);
             }
 
             // add or update pie triggers
+            setupTriggers(false);
+            refreshPieTriggers();
+
             if (DEBUG) {
                 Slog.d(TAG, "AttachPie with trigger position flags: "
                         + mPieTriggerSlots + " masked: " + (mPieTriggerSlots & mPieTriggerMask));
             }
-
-            refreshPieTriggers();
 
         } else {
             for (int i = 0; i < mPieTrigger.length; i++) {
@@ -1566,12 +1605,25 @@ public abstract class BaseStatusBar extends SystemUI implements
                     mPieTrigger[i] = null;
                 }
             }
+            // detach from the pie container and unregister observers and receivers
+            if (mPieController != null) {
+                mPieController.detachContainer();
+                mPieContainer = null;
+            }
         }
     }
 
-    public void disableTriggers( boolean disableTriggers) {
-        mDisableTriggers = disableTriggers;
-        setupTriggers(false);
+    public void disableTriggers(boolean disableTriggers) {
+        if (isPieEnabled()) {
+            mDisableTriggers = disableTriggers;
+            setupTriggers(false);
+        }
+    }
+
+    public void recreatePie() {
+        if (isPieEnabled()) {
+            mPieController.constructSlices();
+        }
     }
 
     public void setupTriggers(boolean forceDisableBottomAndTopTrigger) {
@@ -1580,16 +1632,22 @@ public abstract class BaseStatusBar extends SystemUI implements
                 return;
             }
             mForceDisableBottomAndTopTrigger = forceDisableBottomAndTopTrigger;
+
+            // get expanded desktop values
             int expandedMode = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.EXPANDED_DESKTOP_MODE, 0);
             boolean expanded = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.EXPANDED_DESKTOP_STATE, 0) == 1;
+
+            // get statusbar auto hide value
+            boolean autoHideStatusBar = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.HIDE_STATUSBAR, 0) == 1;
+
+            // get navigation bar values
             final int showByDefault = mContext.getResources().getBoolean(
                     com.android.internal.R.bool.config_showNavigationBar) ? 1 : 0;
             boolean hasNavigationBar = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.NAVIGATION_BAR_SHOW, showByDefault) == 1;
-            boolean autoHideStatusBar = Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.HIDE_STATUSBAR, 0) == 1;
             boolean navBarCanMove = Settings.System.getInt(mContext.getContentResolver(),
                         Settings.System.NAVIGATION_BAR_CAN_MOVE, 1) == 1
                         && screenLayout() != Configuration.SCREENLAYOUT_SIZE_LARGE
@@ -1608,15 +1666,19 @@ public abstract class BaseStatusBar extends SystemUI implements
                                                 com.android.internal.R.dimen.navigation_bar_width)) != 0;
 
             // disable on phones in landscape right trigger for navbar
-
             boolean disableRightTriggerForNavbar =
-                    screenLayout() != Configuration.SCREENLAYOUT_SIZE_LARGE
-                    && !isScreenPortrait()
+                    !isScreenPortrait()
                     && hasNavigationBar
                     && ((expandedMode == 2 && expanded) || !expanded)
-                    && Settings.System.getInt(mContext.getContentResolver(),
-                        Settings.System.NAVIGATION_BAR_CAN_MOVE, 1) == 1;
+                    && navBarCanMove
+                    && navigationBarWidth;
 
+            // take in account the navbar dimensions
+            hasNavigationBar = (hasNavigationBar && isScreenPortrait() && navigationBarHeight)
+                                || (hasNavigationBar && !isScreenPortrait() && !navBarCanMove
+                                    && navigationBarHeightLandscape);
+
+            // let's set the triggers
             if ((!expanded && hasNavigationBar && !autoHideStatusBar)
                 || mForceDisableBottomAndTopTrigger) {
                 if (disableRightTriggerForNavbar) {
@@ -1626,7 +1688,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                                     | Position.RIGHT.FLAG);
                 }
             } else if ((!expanded && !hasNavigationBar && !autoHideStatusBar)
-                || (expandedMode == 1 && expanded && hasNavigationBar && !autoHideStatusBar)) {
+                || (expandedMode == 1 && expanded && !autoHideStatusBar)) {
                 if (!mPieImeIsShowing) {
                     if (disableRightTriggerForNavbar) {
                         updatePieTriggerMask(Position.LEFT.FLAG
@@ -1656,14 +1718,25 @@ public abstract class BaseStatusBar extends SystemUI implements
                 }
             } else {
                 if (!mPieImeIsShowing) {
-                    updatePieTriggerMask(Position.LEFT.FLAG
-                                    | Position.BOTTOM.FLAG
-                                    | Position.RIGHT.FLAG
-                                    | Position.TOP.FLAG);
+                    if (disableRightTriggerForNavbar) {
+                        updatePieTriggerMask(Position.LEFT.FLAG
+                                        | Position.BOTTOM.FLAG
+                                        | Position.TOP.FLAG);
+                    } else {
+                        updatePieTriggerMask(Position.LEFT.FLAG
+                                        | Position.BOTTOM.FLAG
+                                        | Position.RIGHT.FLAG
+                                        | Position.TOP.FLAG);
+                    }
                 } else {
-                    updatePieTriggerMask(Position.LEFT.FLAG
-                                    | Position.RIGHT.FLAG
-                                    | Position.TOP.FLAG);
+                    if (disableRightTriggerForNavbar) {
+                        updatePieTriggerMask(Position.LEFT.FLAG
+                                        | Position.TOP.FLAG);
+                    } else {
+                        updatePieTriggerMask(Position.LEFT.FLAG
+                                        | Position.RIGHT.FLAG
+                                        | Position.TOP.FLAG);
+                    }
                 }
             }
     }
@@ -1671,9 +1744,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     private void updatePieTriggerMask(int newMask) {
         int oldState = mPieTriggerSlots & mPieTriggerMask;
         mPieTriggerMask = newMask;
-
-        Settings.System.putInt(mContext.getContentResolver(),
-                Settings.System.PIE_TRIGGER_MASK, mPieTriggerMask);
 
         // first we check, if it would make a change
         if ((mPieTriggerSlots & mPieTriggerMask) != oldState
@@ -1723,19 +1793,23 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     private WindowManager.LayoutParams getPieTriggerLayoutParams(Position position) {
         final Resources res = mContext.getResources();
-        float heightFactor;
+
+        float pieTriggerHeight = mPieTriggerHeight;
+        final float pieImePortraitMinHeight = 0.52f;
+        final float pieImeLandscapeMinHeight = 0.32f;
         if (mPieImeIsShowing && isScreenPortrait()
-                && !mForceDisableBottomAndTopTrigger) {
-            heightFactor = 0.52f;
+                && !mForceDisableBottomAndTopTrigger
+                && pieTriggerHeight > pieImePortraitMinHeight) {
+            pieTriggerHeight = pieImePortraitMinHeight;
         } else if (mPieImeIsShowing && !isScreenPortrait()
-                && !mForceDisableBottomAndTopTrigger) {
-            heightFactor = 0.32f;
-        } else {
-            heightFactor = 0.8f;
+                && !mForceDisableBottomAndTopTrigger
+                && pieTriggerHeight > pieImeLandscapeMinHeight) {
+            pieTriggerHeight = pieImeLandscapeMinHeight;
         }
-        int width = (int) (res.getDisplayMetrics().widthPixels * 0.8f);
-        int height = (int) (res.getDisplayMetrics().heightPixels * heightFactor);
-        int triggerThickness = (int) ((mPieTriggerSize * res.getDisplayMetrics().density) + 0.5);
+
+        int width = (int) (res.getDisplayMetrics().widthPixels * 0.9f);
+        int height = (int) (res.getDisplayMetrics().heightPixels * pieTriggerHeight);
+        int triggerThickness = (int) ((mPieTriggerThickness * res.getDisplayMetrics().density) + 0.5);
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                 (position == Position.TOP || position == Position.BOTTOM
                         ? width : triggerThickness),
@@ -1744,8 +1818,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                 WindowManager.LayoutParams.TYPE_STATUS_BAR_PANEL,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                         | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                        | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
-                        /* | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM */,
+                        | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
                 PixelFormat.TRANSLUCENT);
         // This title is for debugging only. See: dumpsys window
         lp.setTitle("PieTrigger" + position.name());
@@ -1759,6 +1832,8 @@ public abstract class BaseStatusBar extends SystemUI implements
         if (mPieImeIsShowing && !mForceDisableBottomAndTopTrigger
                     && (position == Position.LEFT || position == Position.RIGHT)) {
             lp.gravity = position.ANDROID_GRAVITY | Gravity.TOP;
+        } else if (position == Position.LEFT || position == Position.RIGHT) {
+            lp.gravity = position.ANDROID_GRAVITY | mPieTriggerGravityLeftRight;
         } else {
             lp.gravity = position.ANDROID_GRAVITY;
         }

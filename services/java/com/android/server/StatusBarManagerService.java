@@ -394,12 +394,19 @@ public class StatusBarManagerService extends IStatusBarService.Stub
     }
 
     @Override
-<<<<<<< HEAD
-
     public void toggleQSShade() {
         if (mBar != null) {
             try {
                 mBar.toggleQSShade();
+            } catch (RemoteException ex) {}
+        }
+    }
+
+    @Override
+    public void toggleStatusBar(boolean enable) {
+        if (mBar != null) {
+            try {
+                mBar.toggleStatusBar(enable);
             } catch (RemoteException ex) {}
         }
     }
