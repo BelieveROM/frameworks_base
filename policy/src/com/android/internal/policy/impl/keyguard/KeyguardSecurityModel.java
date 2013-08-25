@@ -75,7 +75,7 @@ public class KeyguardSecurityModel {
                 || monitor.getPhoneState() != TelephonyManager.CALL_STATE_IDLE;
     }
 
-    SecurityMode getSecurityMode() {
+     SecurityMode getSecurityMode() {
         KeyguardUpdateMonitor updateMonitor = KeyguardUpdateMonitor.getInstance(mContext);
         final IccCardConstants.State simState = updateMonitor.getSimState();
         SecurityMode mode = SecurityMode.None;
@@ -84,7 +84,7 @@ public class KeyguardSecurityModel {
         } else if (simState == IccCardConstants.State.PUK_REQUIRED
                 && mLockPatternUtils.isPukUnlockScreenEnable()) {
             mode = SecurityMode.SimPuk;
-         
+        } else {
             final int security = mLockPatternUtils.getKeyguardStoredPasswordQuality();
             switch (security) {
                 case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC:
@@ -92,7 +92,6 @@ public class KeyguardSecurityModel {
                         mode = SecurityMode.PIN;
                     }
                     break;
-
                 case DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC:
                 case DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC:
                 case DevicePolicyManager.PASSWORD_QUALITY_COMPLEX:
@@ -110,7 +109,7 @@ public class KeyguardSecurityModel {
                     break;
 
                 default:
-                    throw new IllegalStateException("Unknown unlock mode:" + security);
+                    throw new IllegalStateException("Unknown unlock mode:" + mode);
             }
         }
         return mode;
