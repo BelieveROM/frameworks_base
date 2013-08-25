@@ -51,6 +51,9 @@ public class PieToggleTile extends QuickSettingsTile {
             public void onClick(View v) {
                 Settings.System.putIntForUser(mContext.getContentResolver(), Settings.System.PIE_CONTROLS,
                         mEnabled ? 0 : 1, UserHandle.USER_CURRENT);
+            if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
             }
         };
         mOnLongClick = new View.OnLongClickListener() {

@@ -69,8 +69,11 @@ public class ToggleLockscreenTile extends QuickSettingsTile {
                 SharedPreferences.Editor editor = mPrefs.edit();
                 editor.putBoolean(KEY_DISABLED, mDisabledLockscreen);
                 editor.apply();
-
                 applyLockscreenChanges();
+                updateResources();
+		if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
             }
         };
 

@@ -144,9 +144,11 @@ public class QuickSettingsController {
             + TILE_DELIMITER + TILE_SETTINGS
             + TILE_DELIMITER + TILE_WIFI
             + TILE_DELIMITER + TILE_MOBILENETWORK
+            + TILE_DELIMITER + TILE_PIETOGGLE
             + TILE_DELIMITER + TILE_BATTERY
             + TILE_DELIMITER + TILE_AIRPLANE
             + TILE_DELIMITER + TILE_BLUETOOTH;
+            
     /**
      * END OF DATA MATCHING BLOCK
      */

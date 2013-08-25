@@ -2769,10 +2769,10 @@ public final class Settings {
          */
         public static final String PIE_GRAVITY = "pie_gravity";
 
-        /**
+	
+	/**
          * Relative pie size (fraction)
          * Default: 1.0f
-         * @hide
          */
         public static final String PIE_SIZE = "pie_size";
 
@@ -2905,6 +2905,14 @@ public final class Settings {
          * @hide
          */
         public static final String QUICK_SETTINGS_TILES = "quick_settings_tiles";
+
+       /**
+         * Animate-flip Quick Settings Panel Tiles on click
+         *
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_TILES_FLIP = "quick_settings_tiles_flip";
+
 
        /**
          * HALO enabled, should default to 0 (HALO is disabled)
