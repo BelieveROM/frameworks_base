@@ -174,7 +174,6 @@ import java.util.NoSuchElementException;
 public class WindowManagerService extends IWindowManager.Stub
         implements Watchdog.Monitor, WindowManagerPolicy.WindowManagerFuncs,
                 DisplayManagerService.WindowManagerFuncs, DisplayManager.DisplayListener {
-
     static final String TAG = "WindowManager";
     static final boolean DEBUG = false;
     static final boolean DEBUG_ADD_REMOVE = false;
@@ -188,7 +187,7 @@ public class WindowManagerService extends IWindowManager.Stub
     static final boolean DEBUG_VISIBILITY = false;
     static final boolean DEBUG_WINDOW_MOVEMENT = false;
     static final boolean DEBUG_TOKEN_MOVEMENT = false;
-    static final boolean DEBUG_ORIENTATION = true;
+    static final boolean DEBUG_ORIENTATION = false;
     static final boolean DEBUG_APP_ORIENTATION = false;
     static final boolean DEBUG_CONFIGURATION = false;
     static final boolean DEBUG_APP_TRANSITIONS = false;
@@ -266,6 +265,9 @@ public class WindowManagerService extends IWindowManager.Stub
     /** Amount of time (in milliseconds) to delay before declaring a window freeze timeout. */
     static final int WINDOW_FREEZE_TIMEOUT_DURATION = 2000;
 
+    /** Fraction of animation at which the recents thumbnail becomes completely transparent */
+    static final float RECENTS_THUMBNAIL_FADEOUT_FRACTION = 0.25f;
+
     /**
      * If true, the window manager will do its own custom freezing and general
      * management of the screen during rotation.
@@ -293,7 +295,6 @@ public class WindowManagerService extends IWindowManager.Stub
 
     private final boolean mHeadless;
 
-
     private static final float THUMBNAIL_ANIMATION_DECELERATE_FACTOR = 1.5f;
 
 
@@ -302,7 +303,6 @@ public class WindowManagerService extends IWindowManager.Stub
             mUiContext = null;
         }
     };
-
 
     final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -577,6 +577,7 @@ public class WindowManagerService extends IWindowManager.Stub
     final DisplayManagerService mDisplayManagerService;
     final DisplayManager mDisplayManager;
 
+   
     // Who is holding the screen on.
     Session mHoldingScreenOn;
     PowerManager.WakeLock mHoldingScreenWakeLock;
@@ -831,6 +832,7 @@ public class WindowManagerService extends IWindowManager.Stub
         mFxSession = new SurfaceSession();
         mAnimator = new WindowAnimator(this);
 
+     
         initPolicy(uiHandler);
 
         // Add ourself to the Watchdog monitors.
@@ -1596,9 +1598,8 @@ public class WindowManagerService extends IWindowManager.Stub
         boolean targetChanged = false;
 
         // TODO(multidisplay): Wallpapers on main screen only.
-        final DisplayInfo displayInfo = getDefaultDisplayContentLocked().getDisplayInfo();
-        final int dw = displayInfo.appWidth;
-        final int dh = displayInfo.appHeight;
+        final int dw = mPolicy.getWallpaperWidth(mRotation);
+        final int dh = mPolicy.getWallpaperHeight(mRotation);
 
         // First find top-most window that has asked to be on top of the
         // wallpaper; all wallpapers go behind it.
@@ -1989,10 +1990,8 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     void updateWallpaperOffsetLocked(WindowState changingTarget, boolean sync) {
-        final DisplayContent displayContent = changingTarget.mDisplayContent;
-        final DisplayInfo displayInfo = displayContent.getDisplayInfo();
-        final int dw = displayInfo.appWidth;
-        final int dh = displayInfo.appHeight;
+        final int dw = mPolicy.getWallpaperWidth(mRotation);
+        final int dh = mPolicy.getWallpaperHeight(mRotation);
 
         WindowState target = mWallpaperTarget;
         if (target != null) {
@@ -3340,7 +3339,7 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     @Override
-    public void addAppToken(int addPos, IApplicationToken token,
+    public void addAppToken(int addPos, int userId, IApplicationToken token,
             int groupId, int requestedOrientation, boolean fullscreen, boolean showWhenLocked) {
         if (!checkCallingPermission(android.Manifest.permission.MANAGE_APP_TOKENS,
                 "addAppToken()")) {
@@ -3367,7 +3366,7 @@ public class WindowManagerService extends IWindowManager.Stub
                 Slog.w(TAG, "Attempted to add existing app token: " + token);
                 return;
             }
-            atoken = new AppWindowToken(this, token);
+            atoken = new AppWindowToken(this, userId, token);
             atoken.inputDispatchingTimeoutNanos = inputDispatchingTimeoutNanos;
             atoken.groupId = groupId;
             atoken.appFullscreen = fullscreen;
@@ -4903,11 +4902,13 @@ public class WindowManagerService extends IWindowManager.Stub
             throw new SecurityException("Requires SET_ANIMATION_SCALE permission");
         }
 
-        scale = fixScale(scale);
+        if (scale < 0) scale = 0;
+        else if (scale > 20) scale = 20;
+        scale = Math.abs(scale);
         switch (which) {
-            case 0: mWindowAnimationScale = scale; break;
-            case 1: mTransitionAnimationScale = scale; break;
-            case 2: mAnimatorDurationScale = scale; break;
+            case 0: mWindowAnimationScale = fixScale(scale); break;
+            case 1: mTransitionAnimationScale = fixScale(scale); break;
+            case 2: mAnimatorDurationScale = fixScale(scale); break;
         }
 
         // Persist setting
@@ -4975,7 +4976,7 @@ public class WindowManagerService extends IWindowManager.Stub
         }
     }
 
-     // Called by window manager policy.  Not exposed externally.
+    // Called by window manager policy.  Not exposed externally.
     @Override
     public InputChannel monitorInput(String inputChannelName) {
         return mInputManager.monitorInput(inputChannelName);
@@ -5012,7 +5013,7 @@ public class WindowManagerService extends IWindowManager.Stub
     public void reboot() {
         ShutdownThread.reboot(getUiContext(), null, true);
     }
-    
+
     public void setCurrentUser(final int newUserId) {
         synchronized (mWindowMap) {
             mCurrentUserId = newUserId;
@@ -6419,6 +6420,77 @@ public class WindowManagerService extends IWindowManager.Stub
         sw = reduceCompatConfigWidthSize(sw, Surface.ROTATION_180, tmpDm, unrotDw, unrotDh);
         sw = reduceCompatConfigWidthSize(sw, Surface.ROTATION_270, tmpDm, unrotDh, unrotDw);
         return sw;
+    }
+
+    private static class ApplicationDisplayMetrics {
+        boolean rotated;
+        int dh;
+        int dw;
+        int appWidth;
+        int appHeight;
+    }
+
+    private ApplicationDisplayMetrics calculateDisplayMetrics(DisplayContent displayContent) {
+        ApplicationDisplayMetrics dm = new ApplicationDisplayMetrics();
+
+        dm.rotated = (mRotation == Surface.ROTATION_90 || mRotation == Surface.ROTATION_270);
+        final int realdw = dm.rotated ?
+                displayContent.mBaseDisplayHeight : displayContent.mBaseDisplayWidth;
+        final int realdh = dm.rotated ?
+                displayContent.mBaseDisplayWidth : displayContent.mBaseDisplayHeight;
+
+        dm.dw = realdw;
+        dm.dh = realdh;
+
+        if (mAltOrientation) {
+            if (realdw > realdh) {
+                // Turn landscape into portrait.
+                int maxw = (int)(realdh/1.3f);
+                if (maxw < realdw) {
+                    dm.dw = maxw;
+                }
+            } else {
+                // Turn portrait into landscape.
+                int maxh = (int)(realdw/1.3f);
+                if (maxh < realdh) {
+                    dm.dh = maxh;
+                }
+            }
+        }
+
+        return dm;
+    }
+
+    private ApplicationDisplayMetrics updateApplicationDisplayMetricsLocked(
+            DisplayContent displayContent) {
+        if (!mDisplayReady) {
+            return null;
+        }
+
+        final ApplicationDisplayMetrics m = calculateDisplayMetrics(displayContent);
+        final DisplayInfo displayInfo = displayContent.getDisplayInfo();
+
+        m.appWidth = mPolicy.getNonDecorDisplayWidth(m.dw, m.dh, mRotation);
+        m.appHeight = mPolicy.getNonDecorDisplayHeight(m.dw, m.dh, mRotation);
+
+        synchronized(displayContent.mDisplaySizeLock) {
+            displayInfo.rotation = mRotation;
+            displayInfo.logicalWidth = m.dw;
+            displayInfo.logicalHeight = m.dh;
+            displayInfo.logicalDensityDpi = displayContent.mBaseDisplayDensity;
+            displayInfo.appWidth = m.appWidth;
+            displayInfo.appHeight = m.appHeight;
+            displayInfo.getLogicalMetrics(mRealDisplayMetrics, null);
+            displayInfo.getAppMetrics(mDisplayMetrics, null);
+            mDisplayManagerService.setDisplayInfoOverrideFromWindowManager(
+                    displayContent.getDisplayId(), displayInfo);
+        }
+
+        if (false) {
+            Slog.i(TAG, "Set app display size: " + m.appWidth + " x " + m.appHeight);
+        }
+
+        return m;
     }
 
     boolean computeScreenConfigurationLocked(Configuration config) {
@@ -9885,6 +9957,16 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     @Override
+    public void showCustomIntent(Intent intent) {
+        // TODO: What permission?
+        if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mPolicy.showCustomIntent(intent);
+    }
+
+    @Override
     public void showAssistant() {
         // TODO: What permission?
         if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER)
@@ -9892,6 +9974,31 @@ public class WindowManagerService extends IWindowManager.Stub
             return;
         }
         mPolicy.showAssistant();
+    }
+
+    public void updateDisplayMetrics() {
+        long origId = Binder.clearCallingIdentity();
+        boolean changed = false;
+
+        synchronized (mWindowMap) {
+            final DisplayContent displayContent = getDefaultDisplayContentLocked();
+            final DisplayInfo displayInfo =
+                    displayContent != null ? displayContent.getDisplayInfo() : null;
+            final int oldWidth = displayInfo != null ? displayInfo.appWidth : -1;
+            final int oldHeight = displayInfo != null ? displayInfo.appHeight : -1;
+            final ApplicationDisplayMetrics metrics =
+                    updateApplicationDisplayMetricsLocked(displayContent);
+
+            if (metrics != null && oldWidth >= 0 && oldHeight >= 0) {
+                changed = oldWidth != metrics.appWidth || oldHeight != metrics.appHeight;
+            }
+        }
+
+        if (changed) {
+            mH.sendEmptyMessage(H.SEND_NEW_CONFIGURATION);
+        }
+
+        Binder.restoreCallingIdentity(origId);
     }
 
     void dumpPolicyLocked(PrintWriter pw, String[] args, boolean dumpAll) {

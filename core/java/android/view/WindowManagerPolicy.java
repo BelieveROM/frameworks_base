@@ -17,6 +17,7 @@
 package android.view;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
@@ -599,6 +600,18 @@ public interface WindowManagerPolicy {
      */
     public int getConfigDisplayHeight(int fullWidth, int fullHeight, int rotation);
 
+    public int getWallpaperHeight(int rotation);
+
+    public int getWallpaperWidth(int rotation);
+
+    public int getWallpaperTop(int rot);
+
+    public int getWallpaperLeft(int rot);
+
+    public int getWallpaperBottom(int rot);
+
+    public int getWallpaperRight(int rot);
+
     /**
      * Return whether the given window should forcibly hide everything
      * behind it.  Typically returns true for the keyguard.
@@ -1159,6 +1172,12 @@ public interface WindowManagerPolicy {
      * {@link android.content.Intent#ACTION_ASSIST}
      */
     public void showAssistant();
+
+   /**
+     * Ask keyguard to invoke a custom intent after dismissing keyguard
+     * @hide
+     */
+    public void showCustomIntent(Intent intent);
 
     /**
      * Returns whether a given window type can be magnified.

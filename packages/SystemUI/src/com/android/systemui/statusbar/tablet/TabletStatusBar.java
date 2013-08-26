@@ -378,6 +378,11 @@ public class TabletStatusBar extends BaseStatusBar implements
         return getNotificationPanelHeight();
     }
 
+    @Override
+    protected boolean isNotificationPanelFullyVisible() {
+        return mNotificationPanel.getVisibility() == View.VISIBLE;
+    }
+
     private int getNotificationPanelHeight() {
         final Resources res = mContext.getResources();
         final Display d = mWindowManager.getDefaultDisplay();
@@ -516,15 +521,6 @@ public class TabletStatusBar extends BaseStatusBar implements
         mStatusBarView = sb;
 
         sb.setHandler(mHandler);
-
-        try {
-            // Sanity-check that someone hasn't set up the config wrong and asked for a navigation
-            // bar on a tablet that has only the system bar
-            if (mWindowManagerService.hasNavigationBar()) {
-                Slog.e(TAG, "Tablet device cannot show navigation bar and system bar");
-            }
-        } catch (RemoteException ex) {
-        }
 
         mBarContents = (ViewGroup) sb.findViewById(R.id.bar_contents);
 
@@ -714,6 +710,32 @@ public class TabletStatusBar extends BaseStatusBar implements
     }
 
     @Override
+    public void toggleNotificationShade() {
+        int msg = (mNotificationPanel.isShowing())
+                ? MSG_CLOSE_NOTIFICATION_PANEL : MSG_OPEN_NOTIFICATION_PANEL;
+        mHandler.removeMessages(msg);
+        mHandler.sendEmptyMessage(msg);
+    }
+
+    @Override
+    public void toggleQSShade() {
+    }
+
+    @Override
+
+    public void toggleStatusBar(boolean enable) {
+    }
+
+    @Override
+    public void setImeShowStatus(boolean enabled) {
+    }
+
+    @Override
+    public void setAutoRotate(boolean enabled) {
+    }
+
+    @Override
+
     protected void updateSearchPanel() {
         super.updateSearchPanel();
         mSearchPanelView.setStatusBarView(mStatusBarView);
@@ -1004,6 +1026,14 @@ public class TabletStatusBar extends BaseStatusBar implements
                 mHandler.sendEmptyMessage(MSG_CLOSE_RECENTS_PANEL);
             }
         }
+        if ((diff & (StatusBarManager.DISABLE_HOME
+                | StatusBarManager.DISABLE_RECENT
+                | StatusBarManager.DISABLE_BACK
+                | StatusBarManager.DISABLE_SEARCH)) != 0) {
+
+            // all navigation bar listeners will take care of these
+            propagateDisabledFlags(state);
+        }
     }
 
     private void setNavigationVisibility(int visibility) {
@@ -1086,7 +1116,7 @@ public class TabletStatusBar extends BaseStatusBar implements
     }
 
     @Override
-    public void animateExpandSettingsPanel() {
+    public void animateExpandSettingsPanel(boolean flip) {
         // TODO: Implement when TabletStatusBar begins to be used.
     }
 
@@ -1113,6 +1143,8 @@ public class TabletStatusBar extends BaseStatusBar implements
             (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_ALT))
                 ? R.drawable.ic_sysbar_back_ime
                 : R.drawable.ic_sysbar_back);
+
+        propagateNavigationIconHints(hints);
     }
 
     private void notifyUiVisibilityChanged() {
@@ -1162,6 +1194,7 @@ public class TabletStatusBar extends BaseStatusBar implements
             Slog.d(TAG, (showMenu?"showing":"hiding") + " the MENU button");
         }
         mMenuButton.setVisibility(showMenu ? View.VISIBLE : View.GONE);
+        propagateMenuVisibility(showMenu);
 
         // See above re: lights-out policy for legacy apps.
         if (showMenu) setLightsOn(true);

@@ -281,7 +281,7 @@
     <!-- Title for the Phone Options dialog to lock the screen, turn off the phone etc. -->
     <string name="power_dialog" product="tablet">Tablet options</string>
     <!-- Title for the Phone Options dialog to lock the screen, turn off the phone etc. -->
-    <string name="power_dialog" product="default">Phone options</string>
+    <string name="power_dialog" product="default">Believe options</string>
     <!-- Button to turn on silent mode, within the Phone Options dialog -->
     <string name="silent_mode">Silent mode</string>
     <!-- Button to turn on the radio, within the Phone Options dialog -->
@@ -294,8 +294,8 @@
     <string name="power_off">Power off</string>
 
     <!-- Button to reboot the phone, within the Phone Options dialog -->
-    <string name="reboot_system" product="tablet">Reboot tablet</string>
-    <string name="reboot_system" product="default">Reboot phone</string>
+    <string name="reboot_system" product="tablet">Reboot Believe</string>
+    <string name="reboot_system" product="default">Reboot Believe</string>
     <!-- Reboot Progress Dialog. This is shown if the user chooses to reboot the phone. -->
     
     <!-- label for item that screenshots in phone options dialog -->
@@ -3513,7 +3513,7 @@
 
     <!-- Shown in gadget hosts (e.g. the home screen) when there was an error inflating
     the gadget. -->
-    <string name="gadget_host_error_inflating">Couldn\'t add widget.</string>
+    <string name="gadget_host_error_inflating">Couldn\'t add widget. Maybe you forgot to setup your widget.</string>
 
     <!-- Long label for a button on a full-screen input method for the "Go" action. -->
     <string name="ime_action_go">Go</string>
@@ -3943,6 +3943,9 @@
     <!-- Long-press back kill application -->
     <string name="app_killed_message">Application killed</string>
 
+    <!-- Notification for Expanded desktop default -->
+    <string name="expanded_mode_default_set">Expanded desktop set to hide StatusBar only. Configure in Power menu settings</string>
+
     <!-- Title for a button to choose the currently selected activity
          as the default in the activity resolver. [CHAR LIMIT=25] -->
     <string name="activity_resolver_use_always">Always</string>
@@ -4153,4 +4156,23 @@
     <!-- Message informing user that the requested activity could not be found [CHAR LIMIT=none] -->
     <string name="app_not_found">No application found to handle this action</string>
     <string name="revoke">Revoke</string>
+
+    <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, there will
+         be a confirmation dialog.  This is the message. -->
+    <string name="shutdown_confirm_reboot" product="tablet">Believe will reboot now.</string>
+    <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, there will
+         be a confirmation dialog.  This is the message. -->
+    <string name="shutdown_confirm_reboot" product="default">Believe will reboot now.</string>
+
+     <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, it asks
+         the user if they'd like to reboot.  This is the message.  This is used instead of
+         shutdown_confirm_reboot when the system is configured to use long press to go directly to the
+         reboot dialog instead of the global actions menu. -->
+    <string name="shutdown_confirm_reboot_question">Do you want to reboot?</string>
+
+     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_cancelNotifications">cancel application notifications</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_cancelNotifications">Allows the app to cancel notifications created by other apps.</string>
+
 </resources>

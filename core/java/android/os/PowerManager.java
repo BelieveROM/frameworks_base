@@ -231,11 +231,24 @@ public final class PowerManager {
      */
     public static final int WAIT_FOR_PROXIMITY_NEGATIVE = 1;
 
+     /**
+     * Brightness value to use when battery is low.
+     * @hide
+     */
+    public static final int BRIGHTNESS_LOW_BATTERY = 10;
+
     /**
      * Brightness value for fully on.
      * @hide
      */
     public static final int BRIGHTNESS_ON = 255;
+
+     /**
+     * Brightness value for dim backlight.
+     * @hide
+     */
+    public static final int BRIGHTNESS_DIM = 20;
+
 
     /**
      * Brightness value for fully off.
@@ -828,7 +841,7 @@ public final class PowerManager {
             }
         }
 
-        @Override
+         @Override
         public String toString() {
             synchronized (mToken) {
                 return "WakeLock{"
@@ -837,4 +850,6 @@ public final class PowerManager {
             }
         }
     }
+
+   
 }

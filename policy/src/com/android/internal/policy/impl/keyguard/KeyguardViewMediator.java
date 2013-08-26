@@ -118,6 +118,7 @@ public class KeyguardViewMediator {
     private static final int SET_HIDDEN = 12;
     private static final int KEYGUARD_TIMEOUT = 13;
     private static final int SHOW_ASSISTANT = 14;
+    private static final int START_CUSTOM_INTENT = 15;
 
     /**
      * The default amount of time we stay awake (used for all key input)
@@ -248,7 +249,9 @@ public class KeyguardViewMediator {
     private int mUnlockSoundId;
     private int mLockSoundStreamId;
 
-    private int mSlideLockDelay; 
+    
+
+    private int mSlideLockDelay;
 
     /**
      * The volume applied to the lock/unlock sounds.
@@ -516,6 +519,7 @@ public class KeyguardViewMediator {
         mKeyguardViewManager = new KeyguardViewManager(context, wm, mViewMediatorCallback,
                 mLockPatternUtils);
 
+       
         mUserPresentIntent = new Intent(Intent.ACTION_USER_PRESENT);
         mUserPresentIntent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING
                 | Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT);
@@ -588,7 +592,7 @@ public class KeyguardViewMediator {
     public void onScreenTurnedOff(int why) {
         synchronized (this) {
             mScreenOn = false;
-            mSlideLockDelay = why; 
+            mSlideLockDelay = why;
             if (DEBUG) Log.d(TAG, "onScreenTurnedOff(" + why + ")");
 
             mKeyguardDonePending = false;
@@ -647,7 +651,7 @@ public class KeyguardViewMediator {
                 Settings.Secure.LOCK_SCREEN_LOCK_AFTER_TIMEOUT,
                 KEYGUARD_LOCK_AFTER_DELAY_DEFAULT);
 
-        // From CyanogenMod specific Settings 
+        // From CyanogenMod specific Settings
         // If utilizing a secured lock screen, we should not utilize the slide
         // delay and should let it default to the standard delay
         boolean separateSlideLockTimeoutEnabled = (mLockPatternUtils.isSecure() ? false
@@ -656,8 +660,8 @@ public class KeyguardViewMediator {
 
         int slideLockTimeoutDelay = (mSlideLockDelay == WindowManagerPolicy.OFF_BECAUSE_OF_TIMEOUT ? Settings.System
                 .getInt(cr, Settings.System.SCREEN_LOCK_SLIDE_TIMEOUT_DELAY,
-                        KEYGUARD_LOCK_AFTER_DELAY_DEFAULT) : Settings.System.getInt(cr, 
-                                Settings.System.SCREEN_LOCK_SLIDE_SCREENOFF_DELAY, 0)); 
+                        KEYGUARD_LOCK_AFTER_DELAY_DEFAULT) : Settings.System.getInt(cr,
+                                Settings.System.SCREEN_LOCK_SLIDE_SCREENOFF_DELAY, 0));
 
         // From DevicePolicyAdmin
         final long policyTimeout = mLockPatternUtils.getDevicePolicyManager()
@@ -669,8 +673,7 @@ public class KeyguardViewMediator {
             displayTimeout = Math.max(displayTimeout, 0); // ignore negative values
             timeout = Math.min(policyTimeout - displayTimeout, lockAfterTimeout);
         } else {
-
-            timeout = separateSlideLockTimeoutEnabled ? slideLockTimeoutDelay : lockAfterTimeout; 
+            timeout = separateSlideLockTimeoutEnabled ? slideLockTimeoutDelay : lockAfterTimeout;
         }
 
         if (timeout <= 0) {
@@ -710,13 +713,23 @@ public class KeyguardViewMediator {
     }
 
     private void maybeSendUserPresentBroadcast() {
-        if (mSystemReady && mLockPatternUtils.isLockScreenDisabled()
-                && mUserManager.getUsers(true).size() == 1) {
-            // Lock screen is disabled because the user has set the preference to "None".
-            // In this case, send out ACTION_USER_PRESENT here instead of in
-            // handleKeyguardDone()
+        if (mSystemReady && isKeyguardDisabled()) {
             sendUserPresentBroadcast();
         }
+    }
+
+    private boolean isKeyguardDisabled() {
+        if (!mExternallyEnabled) {
+            if (DEBUG) Log.d(TAG, "isKeyguardDisabled: keyguard is disabled externally");
+            return true;
+        }
+        if (mLockPatternUtils.isLockScreenDisabled() && mUserManager.getUsers(true).size() == 1) {
+            if (DEBUG) Log.d(TAG, "isKeyguardDisabled: keyguard is disabled by setting");
+            return true;
+        }
+       
+        
+        return false;
     }
 
     /**
@@ -889,7 +902,6 @@ public class KeyguardViewMediator {
      * Enable the keyguard if the settings are appropriate.
      */
     private void doKeyguardLocked(Bundle options) {
-
         // if the keyguard is already showing, don't bother
         if (mKeyguardViewManager.isShowing()) {
             if (DEBUG) Log.d(TAG, "doKeyguard: not showing because it is already showing");
@@ -912,25 +924,9 @@ public class KeyguardViewMediator {
             return;
         }
 
-        // if another app is disabling us, don't show
-        if (!mExternallyEnabled && !lockedOrMissing) {
-            if (DEBUG) Log.d(TAG, "doKeyguard: not showing because externally disabled");
-
-            // note: we *should* set mNeedToReshowWhenReenabled=true here, but that makes
-            // for an occasional ugly flicker in this situation:
-            // 1) receive a call with the screen on (no keyguard) or make a call
-            // 2) screen times out
-            // 3) user hits key to turn screen back on
-            // instead, we reenable the keyguard when we know the screen is off and the call
-            // ends (see the broadcast receiver below)
-            // TODO: clean this up when we have better support at the window manager level
-            // for apps that wish to be on top of the keyguard
-            return;
-        }
-
-        if (mUserManager.getUsers(true).size() < 2
-                && mLockPatternUtils.isLockScreenDisabled() && !lockedOrMissing) {
-            if (DEBUG) Log.d(TAG, "doKeyguard: not showing because lockscreen is off");
+        // if we're disabled by an app or profile, don't show
+        if (!lockedOrMissing && isKeyguardDisabled()) {
+            if (DEBUG) Log.d(TAG, "doKeyguard: not showing because keyguard is disabled");
             return;
         }
 
@@ -1182,6 +1178,9 @@ public class KeyguardViewMediator {
                     break;
                 case SHOW_ASSISTANT:
                     handleShowAssistant();
+                    break;
+                case START_CUSTOM_INTENT:
+                    handleShowCustomIntent((Intent) msg.obj);
                     break;
             }
         }
@@ -1453,6 +1452,15 @@ public class KeyguardViewMediator {
 
     public boolean isDismissable() {
         return mKeyguardDonePending || !isSecure();
+    }
+
+    public void showCustomIntent(Intent intent) {
+        Message msg = mHandler.obtainMessage(START_CUSTOM_INTENT, intent);
+        mHandler.sendMessage(msg);
+    }
+
+    public void handleShowCustomIntent(Intent intent) {
+        mKeyguardViewManager.showCustomIntent(intent);
     }
 
     public void showAssistant() {

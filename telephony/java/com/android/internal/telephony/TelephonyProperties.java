@@ -90,6 +90,11 @@ public interface TelephonyProperties
 
     static final String CURRENT_ACTIVE_PHONE = "gsm.current.phone-type";
 
+    /**
+     * {@see BaseCommands#getLteOnGsmMode()}
+     */
+    static final String PROPERTY_LTE_ON_GSM_DEVICE = "telephony.lteOnGsmDevice";
+
     //****** SIM Card
     /**
      * One of <code>"UNKNOWN"</code> <code>"ABSENT"</code> <code>"PIN_REQUIRED"</code>

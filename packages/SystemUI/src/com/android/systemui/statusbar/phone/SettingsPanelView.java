@@ -16,9 +16,7 @@
 
 package com.android.systemui.statusbar.phone;
 
-import android.animation.LayoutTransition;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -32,7 +30,6 @@ import android.view.accessibility.AccessibilityEvent;
 
 import com.android.systemui.EventLogTags;
 import com.android.systemui.R;
-import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.GestureRecorder;
 import com.android.systemui.statusbar.policy.BatteryController;
 import com.android.systemui.statusbar.policy.BluetoothController;
@@ -42,7 +39,7 @@ import com.android.systemui.statusbar.policy.NetworkController;
 public class SettingsPanelView extends PanelView {
     public static final boolean DEBUG_GESTURES = true;
 
-    private QuickSettings mQS;
+    private QuickSettingsController mQS;
     private QuickSettingsContainerView mQSContainer;
 
     Drawable mHandleBar;
@@ -63,9 +60,12 @@ public class SettingsPanelView extends PanelView {
         mHandleBar = resources.getDrawable(R.drawable.status_bar_close);
         mHandleBarHeight = resources.getDimensionPixelSize(R.dimen.close_handle_height);
         mHandleView = findViewById(R.id.handle);
+
+        setContentDescription(resources.getString(R.string.accessibility_desc_quick_settings));
+
     }
 
-    public void setQuickSettings(QuickSettings qs) {
+    public void setQuickSettings(QuickSettingsController qs) {
         mQS = qs;
     }
 
@@ -82,24 +82,6 @@ public class SettingsPanelView extends PanelView {
         if (mQS != null) {
             mQS.setImeWindowStatus(visible);
         }
-    }
-
-    public void setup(NetworkController networkController, BluetoothController bluetoothController,
-            BatteryController batteryController, LocationController locationController) {
-        if (mQS != null) {
-            mQS.setup(networkController, bluetoothController, batteryController,
-                    locationController);
-        }
-    }
-
-    void updateResources() {
-        if (mQS != null) {
-            mQS.updateResources();
-        }
-        if (mQSContainer != null) {
-            mQSContainer.updateResources();
-        }
-        requestLayout();
     }
 
     @Override

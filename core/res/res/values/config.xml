@@ -525,6 +525,12 @@
     <!-- Is the notification LED intrusive? Used to decide if there should be a disable option -->
     <bool name="config_intrusiveNotificationLed">false</bool>
 
+    <!-- Is the battery LED intrusive? Used to decide if there should be a disable option -->
+    <bool name="config_intrusiveBatteryLed">false</bool>
+
+    <!-- Does the battery LED support multiple colors? Used to decide if the user can change the colors -->
+    <bool name="config_multiColorBatteryLed">false</bool>
+
     <!-- Default value for LED off time when the battery is low on charge in miliseconds -->
     <integer name="config_notificationsBatteryLedOff">2875</integer>
 
@@ -948,9 +954,6 @@
          This is intended to allow packaging drivers or tools for installation on a PC. -->
     <string translatable="false" name="config_isoImagePath"></string>
 
-    <!-- Whether a software navigation bar should be shown. NOTE: in the future this may be
-         autodetected from the Configuration. -->
-    <bool name="config_showNavigationBar">false</bool>
 
     <!-- Whether action menu items should be displayed in ALLCAPS or not.
          Defaults to true. If this is not appropriate for specific locales
@@ -1087,11 +1090,75 @@
     <!-- Whether camera shutter sound is forced or not  (country specific). -->
     <bool name="config_camera_sound_forced">false</bool>
 
+
     <!-- Set to true if we need to not prefer an APN.
          This is being added to enable a simple scenario of pre-paid
          provisioning on some carriers, working around a bug (7305641)
          where if the preferred is used we don't try the others. -->
     <bool name="config_dontPreferApn">false</bool>
+
+    <!-- Vibrator pattern to be used as for notifications while alerts
+         are disabled (e.g. during phone calls) if enabled by the user.
+         -->
+    <integer-array name="config_notificationNoAlertsVibePattern">
+        <item>0</item>
+        <item>50</item>
+        <item>100</item>
+        <item>50</item>
+    </integer-array>
+
+
+    <!-- Flag indicating if the speed up audio on mt call code should be executed -->
+    <bool name="config_speed_up_audio_on_mt_calls">false</bool>
+
+    <!-- Values greater or equal to 0 will enable electronbeam screen-on
+         animation with the specified delay (in milliseconds), -1 will disable the animation -->
+    <integer name="config_screenOnAnimation">-1</integer>
+
+    <!-- True will enable the electron beam screen-off animation. -->
+    <bool name="config_screenOffAnimation">true</bool>
+
+    <!-- Boolean to enable stk functionality on Samsung phones -->
+    <bool name="config_samsung_stk">false</bool>
+
+    <!-- Workaround for devices with broken keyboards -->
+    <bool name="config_forceDisableHardwareKeyboard">false</bool>
+
+    <!-- Setting to false will disable CM's IME switcher implementation for tablets -->
+    <bool name="config_show_cmIMESwitcher">true</bool>
+
+    <!-- Disable the home key unlock setting -->
+    <bool name="config_disableHomeUnlockSetting">true</bool>
+
+    <!-- If true, adds support for no delay A2DP in Samsung devices -->
+    <bool name="config_noDelayInATwoDP">false</bool>
+
+    <!-- Hardware 'face' keys present on the device, stored as a bit field.
+         This integer should equal the sum of the corresponding value for each
+         of the following keys present:
+             1 - Home
+             2 - Back
+             4 - Menu
+             8 - Assistant (search)
+            16 - App switch
+            32 - Camera
+         For example, a device with Home, Back and Menu keys would set this
+         config to 7. -->
+    <integer name="config_deviceHardwareKeys">7</integer>
+
+    <!-- LUN file to be used by legacy USB manager.
+         The existence of this file will be used to determine in the
+         legacy USB manager should be started. -->
+    <string name="config_legacyUmsLunFile">/sys/devices/platform/usb_mass_storage/lun0/file</string>
+
+    <!-- Boolean to enable Stylus gestures -->
+    <bool name="config_stylusGestures">false</bool>
+
+    <!-- Path to the library that contains a device specific key handler -->
+    <string name="config_deviceKeyHandlerLib" translatable="false"></string>
+
+    <!-- Name of that key handler class -->
+    <string name="config_deviceKeyHandlerClass" translatable="false"></string>
 
     <!-- Vibrator pattern to be used as the default for notifications
          that specify DEFAULT_VIBRATE.
@@ -1114,9 +1181,7 @@
         <item>100</item>
     </integer-array>
 
-    <!-- Flag indicating if the speed up audio on mt call code should be executed -->
-    <bool name="config_speed_up_audio_on_mt_calls">false</bool>
-
+   
     <!-- Class name of the framework account picker activity.
          Can be customized for other product types -->
     <string name="config_chooseAccountActivity"
@@ -1156,7 +1221,18 @@
     <!-- Device has a h/w rotation lock switch -->
     <bool name="config_hasRotationLockSwitch">false</bool>
 
-    <!-- Disable the home key unlock setting --> 
-    <bool name="config_disableHomeUnlockSetting">true</bool> 
+      
+    <!-- empty string to disable, or eg: /sys/kernel/fast_charge/force_fast_charge
+         for a custom path the delivered kernel supports.
+         it is disabled by default so devices need to add an overlay to enable -->
+    <string name="config_fastChargePath" translatable="false"></string>
+
+     <!-- Boolean to enable/disable SlimPIE
+        default is enabled -->
+    <bool name="config_slimPie">true</bool>
+
+     <!-- Whether a software navigation bar should be shown. NOTE: in the future this may be
+         autodetected from the Configuration. -->
+    <bool name="config_showNavigationBar">false</bool>
 
 </resources>

@@ -1657,7 +1657,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 try {
                     LockPatternUtils lpu = new LockPatternUtils(mContext);
                     List<LockPatternView.Cell> cellPattern =
-                            LockPatternUtils.stringToPattern(lockPattern);
+                            lpu.stringToPattern(lockPattern);
                     lpu.saveLockPattern(cellPattern);
                 } catch (IllegalArgumentException e) {
                     // Don't want corrupted lock pattern to hang the reboot process
@@ -2233,6 +2233,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             loadIntegerSetting(stmt, Settings.Global.DOCK_AUDIO_MEDIA_ENABLED,
                     R.integer.def_dock_audio_media_enabled);
+
+             loadBooleanSetting(stmt, Settings.Global.POWER_NOTIFICATIONS_ENABLED,
+                    R.bool.def_power_notifications_enabled);
+            loadBooleanSetting(stmt, Settings.Global.POWER_NOTIFICATIONS_VIBRATE,
+                    R.bool.def_power_notifications_vibrate);
+            loadStringSetting(stmt, Settings.Global.POWER_NOTIFICATIONS_RINGTONE,
+                    R.string.def_power_notifications_ringtone); 
 
             loadSetting(stmt, Settings.Global.SET_INSTALL_LOCATION, 0);
             loadSetting(stmt, Settings.Global.DEFAULT_INSTALL_LOCATION,

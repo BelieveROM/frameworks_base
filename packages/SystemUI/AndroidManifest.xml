@@ -25,7 +25,7 @@
     <uses-permission android:name="android.permission.CONFIGURE_WIFI_DISPLAY" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
 
-    <!-- Networking and telephony -->
+     <!-- Networking and telephony -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -33,6 +33,12 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.MANAGE_NETWORK_POLICY" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_4G_RADIO_DISABLE" />
+    <uses-permission android:name="android.permission.ACCESS_4G_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_4G_STATE" />
+    <uses-permission android:name="com.android.phone.CHANGE_NETWORK_MODE" />
+    <uses-permission android:name="android.permission.CONNECTIVITY_INTERNAL" />
 
     <!-- Physical hardware -->
     <uses-permission android:name="android.permission.MANAGE_USB" />
@@ -52,7 +58,8 @@
     <uses-permission android:name="android.permission.START_ANY_ACTIVITY" />
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
     <uses-permission android:name="android.permission.GET_TOP_ACTIVITY_INFO" />
-    
+    <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
+
     <!-- WindowManager -->
     <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -64,6 +71,17 @@
     <!-- DreamManager -->
     <uses-permission android:name="android.permission.READ_DREAM_STATE" />
     <uses-permission android:name="android.permission.WRITE_DREAM_STATE" />
+
+   <!-- Power widget -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.REBOOT" />
+
+    <!-- Launcher helper extra permissions -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
     <application
         android:persistent="true"
@@ -202,7 +220,12 @@
 <!--            <category android:name="android.intent.category.LAUNCHER" />-->
             </intent-filter>
         </activity>
-
+        <activity android:name="com.android.systemui.WidgetSelectActivity"
+            android:excludeFromRecents="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <!-- Beans in space -->
         <service
             android:name=".BeanBagDream"
@@ -235,5 +258,11 @@
                 <category android:name="android.intent.category.DESK_DOCK" />
             </intent-filter>
         </activity>
+
+        <!-- started from Custom Shortcut Tile -->
+        <activity
+            android:name=".quicksettings.ShortcutPickerActivity"
+            android:label="@string/customshortcut_chooser_title"/>
+
     </application>
 </manifest>

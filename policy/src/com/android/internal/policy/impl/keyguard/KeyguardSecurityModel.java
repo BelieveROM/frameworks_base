@@ -42,9 +42,11 @@ public class KeyguardSecurityModel {
     private Context mContext;
     private LockPatternUtils mLockPatternUtils;
 
+    
     KeyguardSecurityModel(Context context) {
         mContext = context;
         mLockPatternUtils = new LockPatternUtils(context);
+        
     }
 
     void setLockPatternUtils(LockPatternUtils utils) {
@@ -73,7 +75,7 @@ public class KeyguardSecurityModel {
                 || monitor.getPhoneState() != TelephonyManager.CALL_STATE_IDLE;
     }
 
-    SecurityMode getSecurityMode() {
+     SecurityMode getSecurityMode() {
         KeyguardUpdateMonitor updateMonitor = KeyguardUpdateMonitor.getInstance(mContext);
         final IccCardConstants.State simState = updateMonitor.getSimState();
         SecurityMode mode = SecurityMode.None;
@@ -86,14 +88,16 @@ public class KeyguardSecurityModel {
             final int security = mLockPatternUtils.getKeyguardStoredPasswordQuality();
             switch (security) {
                 case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC:
-                    mode = mLockPatternUtils.isLockPasswordEnabled() ?
-                            SecurityMode.PIN : SecurityMode.None;
+                    if (mLockPatternUtils.isLockPasswordEnabled()) {
+                        mode = SecurityMode.PIN;
+                    }
                     break;
                 case DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC:
                 case DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC:
                 case DevicePolicyManager.PASSWORD_QUALITY_COMPLEX:
-                    mode = mLockPatternUtils.isLockPasswordEnabled() ?
-                            SecurityMode.Password : SecurityMode.None;
+                    if (mLockPatternUtils.isLockPasswordEnabled()) {
+                        mode = SecurityMode.Password;
+                    }
                     break;
 
                 case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
