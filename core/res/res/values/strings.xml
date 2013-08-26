@@ -4159,14 +4159,20 @@
 
     <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, there will
          be a confirmation dialog.  This is the message. -->
-    <string name="shutdown_confirm_reboot" product="tablet">Your tablet will reboot now.</string>
+    <string name="shutdown_confirm_reboot" product="tablet">Believe will reboot now.</string>
     <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, there will
          be a confirmation dialog.  This is the message. -->
-    <string name="shutdown_confirm_reboot" product="default">Your phone will reboot now.</string>
+    <string name="shutdown_confirm_reboot" product="default">Believe will reboot now.</string>
 
      <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, it asks
          the user if they'd like to reboot.  This is the message.  This is used instead of
          shutdown_confirm_reboot when the system is configured to use long press to go directly to the
          reboot dialog instead of the global actions menu. -->
     <string name="shutdown_confirm_reboot_question">Do you want to reboot?</string>
+
+     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_cancelNotifications">cancel application notifications</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_cancelNotifications">Allows the app to cancel notifications created by other apps.</string>
+
 </resources>

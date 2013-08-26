@@ -78,6 +78,7 @@ import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
 import android.text.TextUtils;
 import android.text.style.SuggestionSpan;
 import android.util.AtomicFile;
@@ -390,8 +391,6 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
     private boolean mInputBoundToKeyguard;
 
     class SettingsObserver extends ContentObserver {
-        String mLastEnabled = "";
-
         SettingsObserver(Handler handler) {
             super(handler);
             ContentResolver resolver = mContext.getContentResolver();
@@ -401,18 +400,13 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
                     Settings.Secure.ENABLED_INPUT_METHODS), false, this);
             resolver.registerContentObserver(Settings.Secure.getUriFor(
                     Settings.Secure.SELECTED_INPUT_METHOD_SUBTYPE), false, this);
-        }
-
-        @Override public void onChange(boolean selfChange) {
-            synchronized (mMethodMap) {
-                boolean enabledChanged = false;
-                String newEnabled = mSettings.getEnabledInputMethodsStr();
-                if (!mLastEnabled.equals(newEnabled)) {
-                    mLastEnabled = newEnabled;
-                    enabledChanged = true;
-                }
-                updateFromSettingsLocked(enabledChanged);
-            }
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_IME_SWITCHER),
+                    false, new ContentObserver(mHandler) {
+                        public void onChange(boolean selfChange) {
+                            updateFromSettingsLocked(true);
+                        }
+                    });
         }
     }
 
@@ -841,8 +835,6 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
                 mStatusBar = statusBar;
                 statusBar.setIconVisibility("ime", false);
                 updateImeWindowStatusLocked();
-                mShowOngoingImeSwitcherForPhones = mRes.getBoolean(
-                        com.android.internal.R.bool.show_ongoing_ime_switcher);
                 if (mShowOngoingImeSwitcherForPhones) {
                     mWindowManagerService.setOnHardKeyboardStatusChangeListener(
                             mHardKeyboardListener);
@@ -1509,7 +1501,9 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
                 if (mStatusBar != null) {
                     mStatusBar.setImeWindowStatus(token, vis, backDisposition);
                 }
-                final boolean iconVisibility = (vis & InputMethodService.IME_ACTIVE) != 0;
+                final boolean iconVisibility = ((vis & (InputMethodService.IME_ACTIVE)) != 0)
+                        && (mWindowManagerService.isHardKeyboardAvailable()
+                                || (vis & (InputMethodService.IME_VISIBLE)) != 0);
                 final InputMethodInfo imi = mMethodMap.get(mCurMethodId);
                 if (imi != null && iconVisibility && needsToShowImeSwitchOngoingNotification()) {
                     // Used to load label
@@ -1648,6 +1642,14 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
             // There is no longer an input method set, so stop any current one.
             mCurMethodId = null;
             unbindCurrentMethodLocked(true, false);
+        }
+        // code to disable the CM Phone IME switcher with config_show_cmIMESwitcher set = false
+        try {
+            mShowOngoingImeSwitcherForPhones = Settings.System.getInt(mContext.getContentResolver(),
+            Settings.System.STATUS_BAR_IME_SWITCHER) == 1;
+        } catch (SettingNotFoundException e) {
+            mShowOngoingImeSwitcherForPhones = mRes.getBoolean(
+            com.android.internal.R.bool.config_show_cmIMESwitcher);
         }
     }
 
