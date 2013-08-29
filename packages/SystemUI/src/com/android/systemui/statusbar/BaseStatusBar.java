@@ -1568,7 +1568,7 @@ public abstract class BaseStatusBar extends SystemUI implements
         int pie = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.PIE_CONTROLS, 0);
 
-        return (pie == 1 && expanded) || pie == 2;
+        return (pie == 2 && expanded) || pie == 1;
     }
 
     private void attachPie() {
