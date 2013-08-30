@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.provider.Settings; 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -696,7 +697,7 @@ public abstract class PreferenceActivity extends ListActivity implements
         return hasHeaders() && mPrefsContainer.getVisibility() == View.VISIBLE;
     }
 
-    /**
+     /**
      * Called to determine if the activity should run in multi-pane mode.
      * The default implementation returns true if the screen is large
      * enough.
@@ -706,6 +707,7 @@ public abstract class PreferenceActivity extends ListActivity implements
                 com.android.internal.R.bool.preferences_prefer_dual_pane);
         return preferMultiPane;
     }
+
 
     /**
      * Called to determine whether the header list should be hidden.
