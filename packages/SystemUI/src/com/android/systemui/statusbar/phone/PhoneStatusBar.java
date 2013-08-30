@@ -2049,10 +2049,7 @@ public class PhoneStatusBar extends BaseStatusBar {
 
 
     Animator mScrollViewAnim, mFlipSettingsViewAnim, mPowerWidgetAnim, mNotificationButtonAnim,
-        mQuickSettingsButtonAnim, mClearButtonAnim;
-
-    Animator mScrollViewAnim, mFlipSettingsViewAnim, mPowerWidgetAnim, mNotificationButtonAnim,
-        mSettingsButtonAnim, mHaloButtonAnim, mClearButtonAnim; 
+        mQuickSettingsButtonAnim, mHaloButtonAnim, mClearButtonAnim; 
 
 
     @Override
@@ -2278,8 +2275,8 @@ public class PhoneStatusBar extends BaseStatusBar {
                 mScrollView.setScaleX(1f);
             }
 
-            mFlipSettingsView.setVisibility(View.VISIBLE);
-            mFlipSettingsViewAnim = start(
+             mFlipSettingsView.setVisibility(View.VISIBLE);
+             mFlipSettingsViewAnim = start(
                 startDelay(FLIP_DURATION_OUT * zeroOutDelays,
                     interpolator(mDecelerateInterpolator,
                         ObjectAnimator.ofFloat(mFlipSettingsView, View.SCALE_X, 1f)
@@ -2293,6 +2290,11 @@ public class PhoneStatusBar extends BaseStatusBar {
                         .setDuration(FLIP_DURATION_OUT),
                         mPowerWidget, View.GONE,
                         mFlipSettingsView, View.VISIBLE));
+            mHaloButtonAnim = start(
+            setVisibilityWhenDone(
+                ObjectAnimator.ofFloat(mHaloButton, View.ALPHA, 0f)
+                    .setDuration(FLIP_DURATION),
+                    mScrollView, View.INVISIBLE));
             mScrollViewAnim = start(
                 setVisibilityWhenDone(
                     interpolator(mAccelerateInterpolator,
@@ -2328,27 +2330,6 @@ public class PhoneStatusBar extends BaseStatusBar {
                         updateNotificationShortcutsVisibility(false);
                     }
                 }, FLIP_DURATION - 150);
-                    mScrollView, View.INVISIBLE));
-        mPowerWidget.setVisibility(View.GONE);
-	mHaloButtonAnim = start(
-            setVisibilityWhenDone(
-                ObjectAnimator.ofFloat(mHaloButton, View.ALPHA, 0f)
-                    .setDuration(FLIP_DURATION),
-                    mScrollView, View.INVISIBLE));
-        mNotificationButton.setVisibility(View.VISIBLE);
-        mNotificationButtonAnim = start(
-            ObjectAnimator.ofFloat(mNotificationButton, View.ALPHA, 1f)
-                .setDuration(FLIP_DURATION));
-        mClearButtonAnim = start(
-            setVisibilityWhenDone(
-                ObjectAnimator.ofFloat(mClearButton, View.ALPHA, 0f)
-                .setDuration(FLIP_DURATION),
-                mClearButton, View.INVISIBLE));
-        mNotificationPanel.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                updateCarrierLabelVisibility(false);
-
             }
         }
     }
@@ -2395,15 +2376,11 @@ public class PhoneStatusBar extends BaseStatusBar {
 
             mScrollView.setScaleX(1f);
             mScrollView.setVisibility(View.VISIBLE);
-
             mQuickSettingsButton.setAlpha(1f);
             mQuickSettingsButton.setVisibility(View.VISIBLE);
-
-            mPowerWidget.updateVisibility();
             mHaloButton.setAlpha(1f);
             mHaloButtonVisible = true;
             updateHaloButton(); 
-
             mNotificationPanel.setVisibility(View.GONE);
             if (!mHideSettingsPanel)
                 mFlipSettingsView.setVisibility(View.GONE);

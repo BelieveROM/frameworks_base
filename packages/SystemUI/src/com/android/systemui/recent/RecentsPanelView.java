@@ -115,6 +115,8 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
     TextView mFreeMemText;
     TextView mRamText;
 
+    private RecentsActivity mRecentsActivity;
+
     MemInfoReader mMemInfoReader = new MemInfoReader();
 
     public static interface RecentsScrollView {
@@ -291,6 +293,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
 
         mRecentItemLayoutId = a.getResourceId(R.styleable.RecentsPanelView_recentItemLayout, 0);
         mRecentTasksLoader = RecentTasksLoader.getInstance(context);
+        mRecentsActivity = (RecentsActivity) context;
         a.recycle();
     }
 
@@ -407,11 +410,11 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
     }
 
     public void dismiss() {
-        ((RecentsActivity) mContext).dismissAndGoHome();
+        mRecentsActivity.dismissAndGoHome();
     }
 
     public void dismissAndGoBack() {
-        ((RecentsActivity) mContext).dismissAndGoBack();
+        mRecentsActivity.dismissAndGoBack();
     }
 
     public void onAnimationCancel(Animator animation) {
@@ -694,7 +697,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
         } else {
             mRecentTaskDescriptions.addAll(tasks);
         }
-        if (((RecentsActivity) mContext).isActivityShowing()) {
+        if (mRecentsActivity.isActivityShowing()) {
             refreshViews();
         }
     }
@@ -768,11 +771,18 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                         | Intent.FLAG_ACTIVITY_NEW_TASK);
             }
             if (DEBUG) Log.v(TAG, "Starting activity " + intent);
-            context.startActivityAsUser(intent, opts,
-                    new UserHandle(UserHandle.USER_CURRENT));
+           
             if (floating && mRecentsActivity != null) {
                 mRecentsActivity.finish();
             }
+             try {
+                context.startActivityAsUser(intent, opts,
+                        new UserHandle(UserHandle.USER_CURRENT));
+            } catch (SecurityException e) {
+                Log.e(TAG, "Recents does not have the permission to launch " + intent, e);
+
+            }
+         
         }
         if (usingDrawingCache) {
             holder.thumbnailViewImage.setDrawingCacheEnabled(false);
@@ -853,7 +863,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                     } else {
                         throw new IllegalStateException("Oops, no tag on view " + selectedView);
                     }
-                } else if (item.getItemId() == R.id.recent_launch_floating) {
+                 } else if (item.getItemId() == R.id.recent_launch_floating) {
                     ViewHolder viewHolder = (ViewHolder) selectedView.getTag();
                     if (viewHolder != null) {
                         final TaskDescription ad = viewHolder.taskDescription;
