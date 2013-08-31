@@ -83,8 +83,7 @@ public class RingerModeTile extends QuickSettingsTile {
             public void onClick(View v) {
                 toggleState();
                 applyVibrationChanges();
-                updateResources();
-		if (isFlipTilesEnabled()) {
+                if (isFlipTilesEnabled()) {
                     flipTile(0);
                 }
             }

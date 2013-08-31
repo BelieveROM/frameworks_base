@@ -58,8 +58,7 @@ public class LteTile extends QuickSettingsTile {
             public void onClick(View v) {
                 toggleLteState();
                 updateTile();
-                updateResources();
-		if (isFlipTilesEnabled()) {
+                if (isFlipTilesEnabled()) {
                     flipTile(0);
                 }
             }

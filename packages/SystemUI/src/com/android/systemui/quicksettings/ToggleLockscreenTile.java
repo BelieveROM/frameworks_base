@@ -70,8 +70,7 @@ public class ToggleLockscreenTile extends QuickSettingsTile {
                 editor.putBoolean(KEY_DISABLED, mDisabledLockscreen);
                 editor.apply();
                 applyLockscreenChanges();
-                updateResources();
-		if (isFlipTilesEnabled()) {
+                if (isFlipTilesEnabled()) {
                     flipTile(0);
                 }
             }
