@@ -3194,7 +3194,7 @@ public final class Settings {
         public static final String EXPANDED_FLASH_MODE = "expanded_flash_mode";
 
 	/**
-	* HALO being minimal.
+	 * HALO being minimal.
          * @hide
          */
         public static final String HALO_STYLE = "halo_style";

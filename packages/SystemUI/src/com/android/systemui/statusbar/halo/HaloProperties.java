@@ -1,18 +1,18 @@
 /*
- * Copyright (C) 2013 ParanoidAndroid.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (C) 2013 ParanoidAndroid.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package com.android.systemui.statusbar.halo;
 
@@ -121,7 +121,7 @@ public class HaloProperties extends FrameLayout {
     public HaloProperties(Context context) {
         super(context);
 
-	mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         mHaloDismiss = mContext.getResources().getDrawable(R.drawable.halo_dismiss);
         mHaloBackL = mContext.getResources().getDrawable(R.drawable.halo_back_left);
@@ -141,7 +141,7 @@ public class HaloProperties extends FrameLayout {
         mHaloIconPersistent = mContext.getResources().getDrawable(R.drawable.halo_system_message);
         mHaloIconPinned = mContext.getResources().getDrawable(R.drawable.halo_pinned_app);
 
-	mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         mHaloBubble = mInflater.inflate(R.layout.halo_bubble, null);
         mHaloBg = (ImageView) mHaloBubble.findViewById(R.id.halo_bg);
@@ -154,7 +154,7 @@ public class HaloProperties extends FrameLayout {
         mHaloTextView = (TextView) mHaloContentView.findViewById(R.id.bubble);
         mHaloTextView.setAlpha(1f);
 
-	updateColorView();
+        updateColorView();
 
         mHaloNumberView = mInflater.inflate(R.layout.halo_number, null);
         mHaloNumberContainer = (RelativeLayout)mHaloNumberView.findViewById(R.id.container);
@@ -169,9 +169,9 @@ public class HaloProperties extends FrameLayout {
         setHaloSize(mFraction);
 
         mHaloOverlayAnimator = new CustomObjectAnimator(this);
-	mHandler = new Handler();
+        mHandler = new Handler();
         SettingsObserver settingsObserver = new SettingsObserver(mHandler);
-        settingsObserver.observe(); 
+        settingsObserver.observe();
     }
 
     int newPaddingHShort;
@@ -189,7 +189,7 @@ public class HaloProperties extends FrameLayout {
         newPaddingHShort = (int)(mContext.getResources().getDimensionPixelSize(R.dimen.halo_speech_hpadding_short) * fraction);
         newPaddingHWide = (int)(mContext.getResources().getDimensionPixelSize(R.dimen.halo_speech_hpadding_wide) * fraction);
         newPaddingVTop = (int)(mContext.getResources().getDimensionPixelSize(R.dimen.halo_speech_vpadding_top) * fraction);
-        newPaddingVBottom = (int)(mContext.getResources().getDimensionPixelSize(R.dimen.halo_speech_vpadding_bottom) * fraction);        
+        newPaddingVBottom = (int)(mContext.getResources().getDimensionPixelSize(R.dimen.halo_speech_vpadding_bottom) * fraction);
 
         final int newBatchSize = (int)(mContext.getResources().getDimensionPixelSize(R.dimen.halo_number_size) * fraction);
         final int newBatchIconSize = (int)(mContext.getResources().getDimensionPixelSize(R.dimen.halo_number_icon_size) * fraction);
@@ -210,7 +210,7 @@ public class HaloProperties extends FrameLayout {
         mHaloNumberIcon.setLayoutParams(layoutParams4);
 
         updateResources(mLastContentStateLeft);
-	updateColorView();
+        updateColorView();
     }
 
     public void setHaloX(int value) {
@@ -222,7 +222,7 @@ public class HaloProperties extends FrameLayout {
     }
 
     public int getHaloX() {
-        return mHaloX; 
+        return mHaloX;
     }
 
     public int getHaloY() {
@@ -234,7 +234,7 @@ public class HaloProperties extends FrameLayout {
     }
 
     public int getHaloContentY() {
-        return mHaloContentY; 
+        return mHaloContentY;
     }
 
     protected CustomObjectAnimator msgNumberFlipAnimator = new CustomObjectAnimator(this);
@@ -429,8 +429,8 @@ public class HaloProperties extends FrameLayout {
             ContentResolver resolver = mContext.getContentResolver();
 
             resolver.registerContentObserver(Settings.System.getUriFor(
-		    Settings.System.HALO_COLORS), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor( 
+                    Settings.System.HALO_COLORS), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.HALO_CIRCLE_COLOR), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.HALO_BUBBLE_COLOR), false, this);
@@ -447,13 +447,13 @@ public class HaloProperties extends FrameLayout {
 
     private void updateColorView() {
         ContentResolver cr = mContext.getContentResolver();
-	mEnableColor = Settings.System.getInt(cr,
-               Settings.System.HALO_COLORS, 0) == 1; 
+        mEnableColor = Settings.System.getInt(cr,
+               Settings.System.HALO_COLORS, 0) == 1;
         mCircleColor = Settings.System.getInt(cr,
                Settings.System.HALO_CIRCLE_COLOR, 0xFF33B5E5);
         mSpeechColor = Settings.System.getInt(cr,
                Settings.System.HALO_BUBBLE_COLOR, 0xFF33B5E5);
-        mSpeechTextColor = Settings.System.getInt(cr, 
+        mSpeechTextColor = Settings.System.getInt(cr,
                Settings.System.HALO_BUBBLE_TEXT_COLOR, 0xFFFFFFFF);
 
         if (mEnableColor) {
@@ -467,12 +467,12 @@ public class HaloProperties extends FrameLayout {
            mHaloSpeechRD.setColorFilter(mSpeechColor, PorterDuff.Mode.SRC_IN);
 
            // Speech text color
-           mHaloTextView.setTextColor(mSpeechTextColor); 
-	} else {
-	    // Clear that color away! Just in case.
+           mHaloTextView.setTextColor(mSpeechTextColor);
+        } else {
+           // Clear that color away! Just in case.
 
            // Ring
-	   mHaloBg.clearColorFilter(); 
+           mHaloBg.clearColorFilter();
 
            // Speech bubbles
            mHaloSpeechL.clearColorFilter();
