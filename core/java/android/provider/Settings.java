@@ -2914,6 +2914,24 @@ public final class Settings {
          */
         public static final String QUICK_SETTINGS_TILES_FLIP = "quick_settings_tiles_flip";
 
+	/**
+         * Hide network speed indicator when there is no traffic
+         * @hide
+         */
+        public static final String STATUS_BAR_TRAFFIC_HIDE = "status_bar_traffic_hide"; 
+
+	/**
+         * Network speed indicator
+         * @hide
+         */
+        public static final String STATUS_BAR_TRAFFIC_ENABLE = "status_bar_traffic_enable";
+
+	/**
+         * Sets color of statusbar traffic indicator
+         * @hide
+         */
+        public static final String STATUS_BAR_TRAFFIC_COLOR = "status_bar_traffic_color";
+
 
        /**
          * HALO enabled, should default to 0 (HALO is disabled)
