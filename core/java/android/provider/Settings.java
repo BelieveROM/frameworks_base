@@ -2992,7 +2992,7 @@ public final class Settings {
          * HALO unlock ping?, should default to 0 (no, do not ping on unlock)
          * @hide
          */
-        public static final String HALO_UNLOCK_PING = "halo_unlock_ping"
+        public static final String HALO_UNLOCK_PING = "halo_unlock_ping";
 
 
 	/**
