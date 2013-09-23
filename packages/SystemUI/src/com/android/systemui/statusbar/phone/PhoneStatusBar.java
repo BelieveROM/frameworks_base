@@ -603,10 +603,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             addNavigationBarCallback(mNavigationBarView);
         }
 
-        if (mRecreating) {
-
-            addActiveDisplayView();
-        }
+        addActiveDisplayView();
 
         // set recents activity navigation bar view
         RecentsActivity.addNavigationCallback(mNavigationBarView);
