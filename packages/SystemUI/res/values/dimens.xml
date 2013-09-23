@@ -285,18 +285,8 @@
     <dimen name="halo_speech_hpadding_short">4dp</dimen>
     <dimen name="halo_speech_hpadding_wide">13dp</dimen>
     <dimen name="halo_speech_vpadding_top">3dp</dimen>
-    <dimen name="halo_speech_vpadding_bottom">3dp</dimen> 
-    <dimen name="halo_content_max_width">250dp</dimen> 
     <dimen name="halo_speech_vpadding_bottom">3dp</dimen>
     <dimen name="halo_content_max_width">250dp</dimen>
-
-    <!-- Constant for hidden ribbon drag handle -->
-    <dimen name="ribbon_drag_handle_height">25dp</dimen>
-
-    <!-- Notification Shortcuts -->
-    <dimen name="notification_shortcuts_close_handle_height">28dp</dimen>
-    <dimen name="notification_shortcuts_spacing_height">88dp</dimen>
-    <dimen name="notification_shortcuts_drawer_margin">56dp</dimen>
 
     <!-- Top margin for overflow notifications container shown in the P.O.R.N. view -->
     <dimen name="glowpad_overflow_notifications_margin_top">64dp</dimen>

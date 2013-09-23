@@ -31,12 +31,9 @@ import com.android.systemui.recent.RecentsActivity;
 import com.android.systemui.recent.TaskDescription;
 import com.android.systemui.statusbar.pie.PieLayout;
 import com.android.systemui.statusbar.policy.NotificationRowLayout;
-<<<<<<< HEAD
 import com.android.systemui.statusbar.policy.PieController;
 import com.android.systemui.statusbar.policy.PieController.Position;
-=======
 import com.android.systemui.statusbar.policy.activedisplay.ActiveDisplayView;
->>>>>>> c3a4748... Add active display to ChameleonOS [1/2]
 import com.android.systemui.statusbar.tablet.StatusBarPanel;
 import com.android.systemui.statusbar.WidgetView;
 
