@@ -602,7 +602,9 @@ public class PhoneStatusBar extends BaseStatusBar {
             addNavigationBarCallback(mNavigationBarView);
         }
 
-        addActiveDisplayView();
+        if (mRecreating) {
+            addActiveDisplayView();
+        }
 
         // figure out which pixel-format to use for the status bar.
         mPixelFormat = PixelFormat.OPAQUE;
