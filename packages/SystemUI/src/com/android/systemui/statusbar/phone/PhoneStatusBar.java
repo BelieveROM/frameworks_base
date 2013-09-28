@@ -594,6 +594,8 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         updateShowSearchHoldoff();
 
+	addActiveDisplayView();
+
         if (mNavigationBarView == null) {
             mNavigationBarView =
                 (NavigationBarView) View.inflate(context, R.layout.navigation_bar, null);
@@ -602,11 +604,6 @@ public class PhoneStatusBar extends BaseStatusBar {
             mNavigationBarView.setBar(this);
             addNavigationBarCallback(mNavigationBarView);
         }
-
-        addActiveDisplayView();
-
-        // set recents activity navigation bar view
-        RecentsActivity.addNavigationCallback(mNavigationBarView);
 
         // figure out which pixel-format to use for the status bar.
         mPixelFormat = PixelFormat.OPAQUE;
@@ -2774,6 +2771,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         mNavigationBarView.setLowProfile(!on, true, force);
     }
 
+    @Override
     public void topAppWindowChanged(boolean showMenu) {
         mTransparencyManager.update();
         if (DEBUG) {
