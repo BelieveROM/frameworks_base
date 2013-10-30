@@ -118,11 +118,24 @@ public class SettingsProvider extends ContentProvider {
         // These must match Settings.Secure.MOVED_TO_GLOBAL
         sSecureGlobalKeys = new HashSet<String>();
         Settings.Secure.getMovedKeys(sSecureGlobalKeys);
+	sSecureGlobalKeys.add(Settings.Global.PREFERRED_NETWORK_MODE);
+        sSecureGlobalKeys.add(Settings.Global.PREFERRED_CDMA_SUBSCRIPTION);
 
         // Keys from the 'system' table now moved to 'global'
         // These must match Settings.System.MOVED_TO_GLOBAL
         sSystemGlobalKeys = new HashSet<String>();
         Settings.System.getNonLegacyMovedKeys(sSystemGlobalKeys);
+	sSystemGlobalKeys.add(Settings.Global.WINDOW_ANIMATION_SCALE);
+        sSystemGlobalKeys.add(Settings.Global.TRANSITION_ANIMATION_SCALE);
+        sSystemGlobalKeys.add(Settings.Global.ANIMATOR_DURATION_SCALE);
+        sSystemGlobalKeys.add(Settings.Global.FANCY_IME_ANIMATIONS);
+        sSystemGlobalKeys.add(Settings.Global.COMPATIBILITY_MODE);
+        sSystemGlobalKeys.add(Settings.Global.EMERGENCY_TONE);
+        sSystemGlobalKeys.add(Settings.Global.CALL_AUTO_RETRY);
+        sSystemGlobalKeys.add(Settings.Global.DEBUG_APP);
+        sSystemGlobalKeys.add(Settings.Global.WAIT_FOR_DEBUGGER);
+        sSystemGlobalKeys.add(Settings.Global.SHOW_PROCESSES);
+        sSystemGlobalKeys.add(Settings.Global.ALWAYS_FINISH_ACTIVITIES);
     }
 
     private boolean settingMovedToGlobal(final String name) {

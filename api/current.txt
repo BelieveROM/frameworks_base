@@ -2699,6 +2699,7 @@ package android.app {
     method public void finishActivity(int);
     method public void finishActivityFromChild(android.app.Activity, int);
     method public void finishAffinity();
+    method public void finishFloating();
     method public void finishFromChild(android.app.Activity);
     method public android.app.ActionBar getActionBar();
     method public final android.app.Application getApplication();
@@ -3737,6 +3738,15 @@ package android.app {
     field public android.content.pm.ResolveInfo resolveInfo;
   }
 
+  public class LayerActivity extends android.app.Activity {
+    ctor public LayerActivity();
+    method public void onCreate(android.os.Bundle);
+    method public void onRestart();
+    method public void onResume();
+    method public void onStart();
+    method public void onStop();
+  }
+
   public class ListActivity extends android.app.Activity {
     ctor public ListActivity();
     method public android.widget.ListAdapter getListAdapter();
@@ -4174,6 +4184,7 @@ package android.app {
     method public android.content.Intent[] getIntents();
     method public android.app.PendingIntent getPendingIntent(int, int);
     method public android.app.PendingIntent getPendingIntent(int, int, android.os.Bundle);
+    method public void setTaskOnHome(boolean);
     method public void startActivities();
     method public void startActivities(android.os.Bundle);
   }
@@ -6239,6 +6250,7 @@ package android.content {
     field public static final int FLAG_ACTIVITY_TASK_ON_HOME = 16384; // 0x4000
     field public static final int FLAG_DEBUG_LOG_RESOLUTION = 8; // 0x8
     field public static final int FLAG_EXCLUDE_STOPPED_PACKAGES = 16; // 0x10
+    field public static final int FLAG_FLOATING_WINDOW = 8192; // 0x2000
     field public static final int FLAG_FROM_BACKGROUND = 4; // 0x4
     field public static final int FLAG_GRANT_READ_URI_PERMISSION = 1; // 0x1
     field public static final int FLAG_GRANT_WRITE_URI_PERMISSION = 2; // 0x2
@@ -10138,6 +10150,7 @@ package android.hardware {
     method public int getMinExposureCompensation();
     method public int getPictureFormat();
     method public android.hardware.Camera.Size getPictureSize();
+    method public java.lang.String getPowerMode();
     method public android.hardware.Camera.Size getPreferredPreviewSizeForVideo();
     method public int getPreviewFormat();
     method public void getPreviewFpsRange(int[]);
@@ -10165,6 +10178,7 @@ package android.hardware {
     method public java.util.List<java.lang.Integer> getZoomRatios();
     method public boolean isAutoExposureLockSupported();
     method public boolean isAutoWhiteBalanceLockSupported();
+    method public boolean isPowerModeSupported();
     method public boolean isSmoothZoomSupported();
     method public boolean isVideoSnapshotSupported();
     method public boolean isVideoStabilizationSupported();
@@ -10192,6 +10206,7 @@ package android.hardware {
     method public void setMeteringAreas(java.util.List<android.hardware.Camera.Area>);
     method public void setPictureFormat(int);
     method public void setPictureSize(int, int);
+    method public void setPowerMode(java.lang.String);
     method public void setPreviewFormat(int);
     method public void setPreviewFpsRange(int, int);
     method public deprecated void setPreviewFrameRate(int);
@@ -10231,6 +10246,8 @@ package android.hardware {
     field public static final java.lang.String FOCUS_MODE_FIXED = "fixed";
     field public static final java.lang.String FOCUS_MODE_INFINITY = "infinity";
     field public static final java.lang.String FOCUS_MODE_MACRO = "macro";
+    field public static final java.lang.String LOW_POWER = "Low_Power";
+    field public static final java.lang.String NORMAL_POWER = "Normal_Power";
     field public static final int PREVIEW_FPS_MAX_INDEX = 1; // 0x1
     field public static final int PREVIEW_FPS_MIN_INDEX = 0; // 0x0
     field public static final java.lang.String SCENE_MODE_ACTION = "action";
@@ -19961,6 +19978,7 @@ package android.provider {
 
   public static final class Settings.Secure extends android.provider.Settings.NameValueTable {
     ctor public Settings.Secure();
+    method public static java.util.ArrayList<java.lang.String> getArrayList(android.content.ContentResolver, java.lang.String);
     method public static float getFloat(android.content.ContentResolver, java.lang.String, float);
     method public static float getFloat(android.content.ContentResolver, java.lang.String) throws android.provider.Settings.SettingNotFoundException;
     method public static int getInt(android.content.ContentResolver, java.lang.String, int);
@@ -20084,9 +20102,12 @@ package android.provider {
     field public static final java.lang.String DTMF_TONE_WHEN_DIALING = "dtmf_tone";
     field public static final java.lang.String END_BUTTON_BEHAVIOR = "end_button_behavior";
     field public static final java.lang.String FONT_SCALE = "font_scale";
+    field public static final java.lang.String FORCE_DUAL_PANEL = "force_dualpanel";
     field public static final java.lang.String HAPTIC_FEEDBACK_ENABLED = "haptic_feedback_enabled";
     field public static final deprecated java.lang.String HTTP_PROXY = "http_proxy";
     field public static final deprecated java.lang.String INSTALL_NON_MARKET_APPS = "install_non_market_apps";
+    field public static final java.lang.String LISTVIEW_ANIMATION = "listview_animation";
+    field public static final java.lang.String LISTVIEW_INTERPOLATOR = "listview_interpolator";
     field public static final deprecated java.lang.String LOCATION_PROVIDERS_ALLOWED = "location_providers_allowed";
     field public static final deprecated java.lang.String LOCK_PATTERN_ENABLED = "lock_pattern_autolock";
     field public static final deprecated java.lang.String LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED = "lock_pattern_tactile_feedback_enabled";
@@ -21277,6 +21298,7 @@ package android.service.notification {
     method public boolean isOngoing();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator CREATOR;
+    field public final android.app.Notification notification;
   }
 
 }
@@ -26981,6 +27003,7 @@ package android.view {
     field public static final int PROGRESS_START = 0; // 0x0
     field public static final int PROGRESS_VISIBILITY_OFF = -2; // 0xfffffffe
     field public static final int PROGRESS_VISIBILITY_ON = -1; // 0xffffffff
+    field public boolean mIsFloatingWindow;
   }
 
   public static abstract interface Window.Callback {
@@ -28677,6 +28700,7 @@ package android.widget {
     method public void setFastScrollEnabled(boolean);
     method public void setFilterText(java.lang.String);
     method public void setFriction(float);
+    method public void setGridView(boolean);
     method public void setItemChecked(int, boolean);
     method public void setMultiChoiceModeListener(android.widget.AbsListView.MultiChoiceModeListener);
     method public void setOnScrollListener(android.widget.AbsListView.OnScrollListener);

@@ -4284,6 +4284,8 @@ public final class Settings {
             USER_ROTATION,
             DTMF_TONE_WHEN_DIALING,
             DTMF_TONE_TYPE_WHEN_DIALING,
+	    Global.EMERGENCY_TONE,
+	    Global.CALL_AUTO_RETRY,
             HEARING_AID,
             TTY_MODE,
             NOISE_SUPPRESSION,
@@ -4823,6 +4825,8 @@ public final class Settings {
             MOVED_TO_GLOBAL.add(Settings.Global.GLOBAL_HTTP_PROXY_EXCLUSION_LIST);
             MOVED_TO_GLOBAL.add(Settings.Global.SET_GLOBAL_HTTP_PROXY);
             MOVED_TO_GLOBAL.add(Settings.Global.DEFAULT_DNS_SERVER);
+	    MOVED_TO_GLOBAL.add(Settings.Global.PREFERRED_NETWORK_MODE);
+            MOVED_TO_GLOBAL.add(Settings.Global.PREFERRED_CDMA_SUBSCRIPTION);
             MOVED_TO_GLOBAL.add(Settings.Global.PREFERRED_NETWORK_MODE);
             
         }
@@ -6662,7 +6666,7 @@ public final class Settings {
          */
         public static final String CDMA_ROAMING_MODE = "roaming_settings";
 
-        /**
+	/**
          * The CDMA subscription mode 0 = RUIM/SIM (default)
          *                                1 = NV
          * @hide
@@ -7527,97 +7531,6 @@ public final class Settings {
         }
 
         /**
-         * Scaling factor for normal window animations. Setting to 0 will
-         * disable window animations.
-         */
-        public static final String WINDOW_ANIMATION_SCALE = "window_animation_scale";
-
-        /**
-         * Scaling factor for activity transition animations. Setting to 0 will
-         * disable window animations.
-         */
-        public static final String TRANSITION_ANIMATION_SCALE = "transition_animation_scale";
-
-        /**
-         * Scaling factor for Animator-based animations. This affects both the
-         * start delay and duration of all such animations. Setting to 0 will
-         * cause animations to end immediately. The default value is 1.
-         */
-        public static final String ANIMATOR_DURATION_SCALE = "animator_duration_scale";
-
-        /**
-         * Scaling factor for normal window animations. Setting to 0 will
-         * disable window animations.
-         *
-         * @hide
-         */
-        public static final String FANCY_IME_ANIMATIONS = "fancy_ime_animations";
-
-        /**
-         * If 0, the compatibility mode is off for all applications.
-         * If 1, older applications run under compatibility mode.
-         * TODO: remove this settings before code freeze (bug/1907571)
-         * @hide
-         */
-        public static final String COMPATIBILITY_MODE = "compatibility_mode";
-
-        /**
-         * CDMA only settings
-         * Emergency Tone  0 = Off
-         *                 1 = Alert
-         *                 2 = Vibrate
-         * @hide
-         */
-        public static final String EMERGENCY_TONE = "emergency_tone";
-
-        /**
-         * CDMA only settings
-         * Whether the auto retry is enabled. The value is
-         * boolean (1 or 0).
-         * @hide
-         */
-        public static final String CALL_AUTO_RETRY = "call_auto_retry";
-
-        /**
-         * The preferred network mode   7 = Global
-         *                              6 = EvDo only
-         *                              5 = CDMA w/o EvDo
-         *                              4 = CDMA / EvDo auto
-         *                              3 = GSM / WCDMA auto
-         *                              2 = WCDMA only
-         *                              1 = GSM only
-         *                              0 = GSM / WCDMA preferred
-         * @hide
-         */
-        public static final String PREFERRED_NETWORK_MODE =
-                "preferred_network_mode";
-
-      
-        /**
-         * Name of an application package to be debugged.
-         */
-        public static final String DEBUG_APP = "debug_app";
-
-        /**
-         * If 1, when launching DEBUG_APP it will wait for the debugger before
-         * starting user code.  If 0, it will run normally.
-         */
-        public static final String WAIT_FOR_DEBUGGER = "wait_for_debugger";
-
-        /**
-         * Control whether the process CPU usage meter should be shown.
-         */
-        public static final String SHOW_PROCESSES = "show_processes";
-
-        /**
-         * If 1, the activity manager will aggressively finish activities and
-         * processes as soon as they are no longer needed.  If 0, the normal
-         * extended lifetime is used.
-         */
-        public static final String ALWAYS_FINISH_ACTIVITIES =
-                "always_finish_activities";
-
-        /**
          * Use Dock audio output for media:
          *      0 = disabled
          *      1 = enabled
@@ -7734,10 +7647,109 @@ public final class Settings {
             WIFI_NETWORKS_AVAILABLE_REPEAT_DELAY,
             WIFI_WATCHDOG_POOR_NETWORK_TEST_ENABLED,
             WIFI_NUM_OPEN_NETWORKS_KEPT,
-            EMERGENCY_TONE,
-            CALL_AUTO_RETRY,
+            Global.EMERGENCY_TONE,
+            Global.CALL_AUTO_RETRY,
             DOCK_AUDIO_MEDIA_ENABLED
         };
+
+	/**
+         * Scaling factor for normal window animations. Setting to 0 will
+         * disable window animations.
+         */
+        public static final String WINDOW_ANIMATION_SCALE = "window_animation_scale";
+
+        /**
+         * Scaling factor for activity transition animations. Setting to 0 will
+         * disable window animations.
+         */
+        public static final String TRANSITION_ANIMATION_SCALE = "transition_animation_scale";
+
+        /**
+         * Scaling factor for Animator-based animations. This affects both the
+         * start delay and duration of all such animations. Setting to 0 will
+         * cause animations to end immediately. The default value is 1.
+         */
+        public static final String ANIMATOR_DURATION_SCALE = "animator_duration_scale";
+
+        /**
+         * Scaling factor for normal window animations. Setting to 0 will
+         * disable window animations.
+         *
+         * @hide
+         */
+        public static final String FANCY_IME_ANIMATIONS = "fancy_ime_animations";
+
+        /**
+         * If 0, the compatibility mode is off for all applications.
+         * If 1, older applications run under compatibility mode.
+         * TODO: remove this settings before code freeze (bug/1907571)
+         * @hide
+         */
+        public static final String COMPATIBILITY_MODE = "compatibility_mode";
+
+        /**
+         * CDMA only settings
+         * Emergency Tone  0 = Off
+         *                 1 = Alert
+         *                 2 = Vibrate
+         * @hide
+         */
+        public static final String EMERGENCY_TONE = "emergency_tone";
+
+        /**
+         * CDMA only settings
+         * Whether the auto retry is enabled. The value is
+         * boolean (1 or 0).
+         * @hide
+         */
+        public static final String CALL_AUTO_RETRY = "call_auto_retry";
+
+        /**
+         * The preferred network mode   7 = Global
+         *                              6 = EvDo only
+         *                              5 = CDMA w/o EvDo
+         *                              4 = CDMA / EvDo auto
+         *                              3 = GSM / WCDMA auto
+         *                              2 = WCDMA only
+         *                              1 = GSM only
+         *                              0 = GSM / WCDMA preferred
+         * @hide
+         */
+        public static final String PREFERRED_NETWORK_MODE =
+                "preferred_network_mode";
+
+        /**
+         * The cdma subscription 0 = Subscription from RUIM, when available
+         *                       1 = Subscription from NV
+         * @hide
+         */
+        public static final String PREFERRED_CDMA_SUBSCRIPTION =
+                "preferred_cdma_subscription";
+
+        /**
+         * Name of an application package to be debugged.
+         */
+        public static final String DEBUG_APP = "debug_app";
+
+        /**
+         * If 1, when launching DEBUG_APP it will wait for the debugger before
+         * starting user code.  If 0, it will run normally.
+         */
+        public static final String WAIT_FOR_DEBUGGER = "wait_for_debugger";
+
+        /**
+         * Control whether the process CPU usage meter should be shown.
+         */
+        public static final String SHOW_PROCESSES = "show_processes";
+
+        /**
+         * If 1, the activity manager will aggressively finish activities and
+         * processes as soon as they are no longer needed.  If 0, the normal
+         * extended lifetime is used.
+         */
+        public static final String ALWAYS_FINISH_ACTIVITIES =
+                "always_finish_activities";
+
 
         // Populated lazily, guarded by class object:
         private static NameValueCache sNameValueCache = new NameValueCache(
